@@ -41,6 +41,8 @@ db.sequelize = sequelize;
 db.Admin = require('./adminModel')(sequelize, DataTypes);
 db.User = require('./userModel')(sequelize, DataTypes);
 db.UserProfile = require('./userProfileModel')(sequelize, DataTypes);
+db.IncomingMail = require('./incomingMailModel')(sequelize, DataTypes);
+db.OutgoingMail = require('./outgoingMailModel')(sequelize, DataTypes);
 
 // Define associations
 
@@ -64,6 +66,27 @@ db.User.hasOne(db.UserProfile, {
 db.UserProfile.belongsTo(db.User, {
     foreignKey: 'user_id',
     as: 'user'
+});
+
+// IncomingMail → Admin(Input) 
+db.IncomingMail.belongsTo(db.Admin, {
+    foreignKey: 'input_by_admin_id',
+    as: 'inputBy'
+});
+db.Admin.hasMany(db.IncomingMail, {
+    foreignKey: 'input_by_admin_id',
+    as: 'incomingMails'
+});
+
+
+// OutgoingMail → Admin(Input)
+db.OutgoingMail.belongsTo(db.Admin, {
+    foreignKey: 'input_by_admin_id',
+    as: 'inputBy'
+});
+db.Admin.hasMany(db.OutgoingMail, {
+    foreignKey: 'input_by_admin_id',
+    as: 'outgoingMails'
 });
 
 // Authenticate and sync

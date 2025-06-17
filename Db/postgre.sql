@@ -44,5 +44,21 @@ CREATE TABLE user_profiles (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE incoming_mail(
+	mail_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+	mail_no TEXT NOT NULL,
+	mail_file TEXT NOT NULL,
+	input_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	input_by_admin_id UUID REFERENCES admins(admin_id) ON DELETE SET NULL
+);
+
+CREATE TABLE outgoing_mail(
+	mail_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+	mail_no TEXT NOT NULL,
+	mail_file TEXT NOT NULL,
+	input_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	input_by_admin_id UUID REFERENCES admins(admin_id) ON DELETE SET NULL
+);
+
 select * from admins;
 select * from users;

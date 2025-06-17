@@ -1,0 +1,46 @@
+paths:
+  /api/mails/incoming:
+    get:
+      summary: Get all incoming mails
+      tags:
+        - Incoming Mail
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: Page number
+        - in: query
+          name: sort
+          schema:
+            type: string
+            enum: [asc, desc]
+          description: Sort by input date
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        mail_id:
+                          type: string
+                        mail_no:
+                          type: string
+                        mail_file:
+                          type: string
+                        input_at:
+                          type: string
+                          format: date-time
+                        input_by_admin_id:
+                          type: string
+        '500':
+          description: Internal server error

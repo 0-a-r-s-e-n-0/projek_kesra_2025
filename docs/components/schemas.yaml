@@ -1,0 +1,35 @@
+components:
+  schemas:
+    Register Input:
+      type: object
+      required:
+        - username
+        - email
+        - password
+      properties:
+        username:
+          type: string
+          example: user1
+        email:
+          type: string
+          format: email
+          example: example@mail.com
+        password:
+          type: string
+          format: password
+          example: secret123
+
+    Login Input:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          example: example@mail.com
+        password:
+          type: string
+          format: password
+          example: secret123

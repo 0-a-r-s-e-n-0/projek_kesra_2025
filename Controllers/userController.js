@@ -40,45 +40,28 @@ const signup = async (req, res) => {
         //saving the user
         const user = await User.create(data, { transaction });
 
-
         //if user details is captured
-        //generate token with the user's id and the secretKey in the env file
-        // set cookie with the token generated
         if (user) {
-            let token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
-                expiresIn: 1 * 24 * 60 * 60 * 1000,
-            });
-
-            res.cookie("jwt", token, { maxAge: 1 * 24 * 60 * 60, httpOnly: true });
-
             // Create user profile
-            const userProfile = await UserProfile.create({
+            await UserProfile.create({
                 user_id: user.user_id,
             }, { transaction });
 
             // Commit transaction
             await transaction.commit();
 
-            const register_at = DateTime.fromJSDate(user.register_at)
-                .setZone('Asia/Jakarta')
-                .toFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZZ");
+            // console.log('User register:', JSON.stringify(user, null, 2));
+            // console.log('UserProfile created:', JSON.stringify(userProfile, null, 2));
 
-
-            console.log('User register:', JSON.stringify(user, null, 2));
-            console.log('UserProfile created:', JSON.stringify(userProfile, null, 2));
-            console.log('Token:', token);
             //send users details
             return res.status(201).json({
                 status: 'success',
                 statusCode: 201,
                 message: 'User registered successfully',
                 data: {
-                    user_id: user.user_id,
                     username: user.username,
                     email: user.email,
                     full_name: user.full_name,
-                    is_verified: user.is_verified,
-                    register_at: user.register_at
                 }
             });
         } else {
@@ -129,13 +112,15 @@ const login = async (req, res) => {
         //if user email is found, compare password with bcrypt
         if (user) {
             const isSame = await bcrypt.compare(password, user.password_hash);
-            const profile = await UserProfile.findOne({ where: { user_id: user.user_id } });
 
             //if password is the same
             //generate token with the user's id and the secretKey in the env file
             if (isSame) {
-                let token = jwt.sign({ id: user.user_id }, process.env.JWT_SECRET, {
-                    expiresIn: 1 * 24 * 60 * 60 * 1000,
+                const payload = {
+                    id: user.user_id,        // user ID, konvensi umum pakai "sub" (subject)
+                };
+                let token = jwt.sign(payload, process.env.JWT_SECRET, {
+                    expiresIn: '1d',
                 });
 
                 const register_at = DateTime.fromJSDate(user.register_at)
@@ -144,10 +129,16 @@ const login = async (req, res) => {
 
                 //if password matches wit the one in the database
                 //go ahead and generate a cookie for the user
-                res.cookie("jwt", token, { maxAge: 1 * 24 * 60 * 60, httpOnly: true });
-                console.log('User login:', JSON.stringify(user, null, 2));
-                console.log('User profile:', JSON.stringify(profile, null, 2));
-                console.log('Token:', token);
+                res.cookie("jwt", token, {
+                    maxAge: 1 * 24 * 60 * 60 * 1000,
+                    httpOnly: true,
+                    // secure: true,        // Hanya dikirim lewat HTTPS (gunakan saat production)
+                    // sameSite: 'strict'   // Lindungi dari CSRF, tergantung kebutuhan
+                });
+
+                // console.log('User login:', JSON.stringify(user, null, 2));
+                // console.log('User profile:', JSON.stringify(profile, null, 2));
+                // console.log('Token:', token);
 
                 if (!user.is_verified) {
                     return res.status(403).json({
@@ -174,17 +165,10 @@ const login = async (req, res) => {
                             gender: user.gender,
                             address: user.address,
                             id_card_photo: user.id_card_photo,
-                            register_at: user.register_at,
+                            register_at: register_at,
                             is_verified: user.is_verified,
                             verified_at: user.verified_at,
                             verified_by_admin_id: user.verified_by_admin_id,
-                        },
-                        profile: {
-                            profile_id: profile.profile_id,
-                            birth_date: profile.birth_date,
-                            phone_number: profile.phone_number,
-                            profile_photo: profile.profile_photo,
-                            last_login: profile.last_login
                         },
                     }
                 });
@@ -315,12 +299,9 @@ const updateProfile = async (req, res) => {
             status: 'success',
             message: 'Profile updated successfully',
             data: {
-                profile_id: updatedProfile.profile_id,
-                user_id: updatedProfile.user_id,
-                full_name: updatedProfile.full_name,
+                birth_date: updateProfile.birth_date,
                 phone_number: updatedProfile.phone_number,
-                address: updatedProfile.address,
-                created_at: register_at
+                profile_photo: updatedProfile.profile_photo,
             }
         });
     } catch (error) {

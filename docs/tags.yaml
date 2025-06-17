@@ -1,0 +1,3 @@
+tags:
+  - name: Auth
+    description: Authentication routes (register and login)

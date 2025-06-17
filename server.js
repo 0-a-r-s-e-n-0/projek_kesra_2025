@@ -3,7 +3,10 @@ const dotenv = require('dotenv').config();
 const cookieParser = require('cookie-parser');
 const db = require('./Models');
 const userRoutes = require('./Routes/userRoutes');
+const mailRoutes = require('./Routes/mailRoutes')
 const cors = require('cors');
+
+const { swaggerUi, swaggerSpec } = require('./docs/swagger');
 
 const PORT = process.env.PORT || 8080;
 const HOST = 'localhost' || '192.168.100.122';
@@ -12,11 +15,16 @@ const app = express();
 
 app.use(cors());
 
+// Swagger route
+app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
 app.use('/api/users', userRoutes);
+app.use('/api/mails', mailRoutes);
+
 
 db.sequelize.authenticate()
     .then(() => {

@@ -70,44 +70,73 @@ const saveUser = async (req, res, next) => {
 
 const userAuth = async (req, res, next) => {
     try {
-        const token = req.cookies.jwt;
-        // console.log('Auth token:', token ? 'Present' : 'Missing');
+        // Ambil token dari cookie atau header
+        const token = req.cookies.jwt || (req.headers.authorization && req.headers.authorization.split(' ')[1]);
 
         if (!token) {
             return res.status(401).json({
                 status: 'error',
                 statusCode: 401,
                 message: 'No token provided',
-                errorCode: 'AUTH_TOKEN_INVALID'
+                errorCode: 'AUTH_TOKEN_MISSING'
             });
         }
 
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        // console.log('Decoded token:', JSON.stringify(decoded, null, 2));
+        // Verifikasi token
+        let decoded;
+        try {
+            decoded = jwt.verify(token, process.env.JWT_SECRET);
+        } catch (err) {
+            if (err.name === 'TokenExpiredError') {
+                return res.status(401).json({
+                    status: 'error',
+                    statusCode: 401,
+                    message: 'Token has expired',
+                    errorCode: 'TOKEN_EXPIRED'
+                });
+            } else {
+                return res.status(401).json({
+                    status: 'error',
+                    statusCode: 401,
+                    message: 'Invalid token',
+                    errorCode: 'TOKEN_INVALID'
+                });
+            }
+        }
 
-        // Handle different payload keys
-        const userId = decoded.user_id || decoded.id;
+        const userId = decoded.sub || decoded.user_id || decoded.id;
         if (!userId) {
             return res.status(401).json({
                 status: 'error',
                 statusCode: 401,
-                message: 'Invalid or expired token',
-                errorCode: 'AUTH_TOKEN_INVALID'
+                message: 'Invalid token payload',
+                errorCode: 'TOKEN_PAYLOAD_INVALID'
             });
         }
 
-        req.user = { user_id: userId };
-        //console.log('req.user set:', req.user);
+        // Opsional: cek apakah user masih ada di DB
+        const user = await User.findByPk(userId);
+        if (!user) {
+            return res.status(401).json({
+                status: 'error',
+                statusCode: 401,
+                message: 'User not found',
+                errorCode: 'USER_NOT_FOUND'
+            });
+        }
+
+        req.user = { user_id: userId }; // Atau: req.user = user; kalau mau lengkap
         next();
     } catch (error) {
         console.error('Auth error:', error);
         return res.status(500).json({
             status: 'error',
             statusCode: 500,
-            message: 'An unexpected error occurred on the server',
+            message: 'Server error during authentication',
             errorCode: 'SERVER_ERROR'
         });
     }
 };
+
 
 module.exports = { userAuth, saveUser };

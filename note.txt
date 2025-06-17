@@ -11,5 +11,7 @@ npm install express
 npm install luxon //Use for date manipulation and timezone support.
 npm install express-validator
 npm install cors
+npm install swagger-ui-express swagger-jsdoc //dokumentasi otomatis
+
 
 jangan lupa tambahkan "dev": "nodemon server.js" dalam blok scripts di package.json
