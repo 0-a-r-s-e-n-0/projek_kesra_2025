@@ -1,0 +1,173 @@
+paths:
+  api/users/signup:
+    post:
+      summary: User Signup
+      description: Daftarkan akun untuk pengguna baru
+      tags:
+        - User
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '/api/components/schemas/user.yaml#/UserSignupInput'
+      responses:
+        '201':
+          description: User successfully registered
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  statusCode:
+                    type: integer
+                    example: 201
+                  message:
+                    type: string
+                    example: User registered successfully
+                  data:
+                    type: object
+                    properties:
+                      username:
+                        type: string
+                        example: johndoe
+                      email:
+                        type: string
+                        format: email
+                        example: johndoe@example.com
+                      full_name:
+                        type: string
+                        example: John Doe
+        '409':
+          description: Data conflict (email or username already exists)
+          content:
+            application/json:
+              schema:
+                $ref: '/api/components/schemas/responses.yaml#/ConflictResponse'
+        '500':
+          description: Server error during registration
+          content:
+            application/json:
+              schema:
+                $ref: '/api/components/schemas/responses.yaml#/ServerErrorResponse'
+
+  api/users/login:
+    post:
+      summary: User Login
+      description: Login user yang sudah terverifikasi
+      tags:
+        - User
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '/api/components/schemas/user.yaml#/UserLoginInput'
+      responses:
+        '200':
+          description: Successful login
+          content:
+            application/json:
+              schema:
+                $ref: '/api/components/schemas/responses.yaml#/UserLoginSuccessResponse'
+        '400':
+          description: Invalid input (missing email or password)
+          content:
+            application/json:
+              schema:
+                $ref: '/api/components/schemas/responses.yaml#/InvalidInputResponse'
+        '401':
+          description: Email or password is incorrect
+          content:
+            application/json:
+              schema:
+                $ref: '/api/components/schemas/responses.yaml#/InvalidCredentialResponse'
+        '403':
+          description: Account not verified
+          content:
+            application/json:
+              schema:
+                $ref: '/api/components/schemas/responses.yaml#/UserNotVerifiedResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '/api/components/schemas/responses.yaml#/ServerErrorResponse'
+
+  api/users/profile:
+    get:
+      summary: Get User Profile
+      description: Mengambil data profil user yang sedang login (authenticated)
+      tags:
+        - User
+      security:
+        - bearerAuth: []  # Menggunakan JWT
+      responses:
+        '200':
+          description: Profile retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '/api/components/schemas/responses.yaml#/UserProfileSuccessResponse'
+        '401':
+          description: Unauthorized - token tidak valid atau tidak ada
+          content:
+            application/json:
+              schema:
+                $ref: '/api/components/schemas/responses.yaml#/UnauthorizedResponse'
+        '404':
+          description: Profile not found
+          content:
+            application/json:
+              schema:
+                $ref: '/api/components/schemas/responses.yaml#/UserNotFoundResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '/api/components/schemas/responses.yaml#/ServerErrorResponse'
+
+  api/user/profile:
+    put:
+      summary: Update User Profile
+      description: Mengupdate data profil user yang sedang login. Hanya field yang dikirim yang akan diubah.
+      tags:
+        - User
+      security:
+        - bearerAuth: []  # JWT Token auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '/api/components/schemas/user.yaml#/UpdateUserProfileInput'
+      responses:
+        '200':
+          description: Profile updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '/api/components/schemas/responses.yaml#/UpdateUserProfileSuccessResponse'
+        '400':
+          description: Invalid input - tidak ada field yang dikirim
+          content:
+            application/json:
+              schema:
+                $ref: '/api/components/schemas/responses.yaml#/InvalidProfileInputResponse'
+        '404':
+          description: Profile not found
+          content:
+            application/json:
+              schema:
+                $ref: '/api/components/schemas/responses.yaml#/ProfileNotFoundResponse'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '/api/components/schemas/responses.yaml#/ServerErrorResponse'

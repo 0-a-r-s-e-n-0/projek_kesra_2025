@@ -1,0 +1,283 @@
+UserLoginSuccessResponse:
+  type: object
+  properties:
+    status:
+      type: string
+      example: success
+    statusCode:
+      type: integer
+      example: 200
+    message:
+      type: string
+      example: User logged in successfully
+    data:
+      type: object
+      properties:
+        Token:
+          type: string
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        User:
+          type: object
+          properties:
+            user_id:
+              type: string
+              format: uuid
+              example: 123e4567-e89b-12d3-a456-426614174000
+            username:
+              type: string
+              example: johndoe
+            email:
+              type: string
+              format: email
+              example: johndoe@example.com
+            nik:
+              type: string
+              example: "3276010101010001"
+            full_name:
+              type: string
+              example: John Doe
+            gender:
+              type: string
+              example: Pria
+            address:
+              type: string
+              example: Jl. Merdeka No.1
+            id_card_photo:
+              type: string
+              example: https://storage.example.com/ktp/johndoe.jpg
+            register_at:
+              type: string
+              format: date-time
+              example: "2025-06-17T12:34:56.789+07:00"
+            is_verified:
+              type: boolean
+              example: true
+            verified_at:
+              type: string
+              format: date-time
+              nullable: true
+              example: "2025-06-17T13:00:00+07:00"
+            verified_by_admin_id:
+              type: string
+              format: uuid
+              nullable: true
+              example: 123e4567-e89b-12d3-a456-426614174999
+
+ConflictResponse:
+  type: object
+  properties:
+    status:
+      type: string
+      example: error
+    statusCode:
+      type: integer
+      example: 409
+    message:
+      type: string
+      example: Details are not correct
+    errorCode:
+      type: string
+      example: CONFLICT_DATA
+
+ServerErrorResponse:
+  type: object
+  properties:
+    status:
+      type: string
+      example: error
+    statusCode:
+      type: integer
+      example: 500
+    message:
+      type: string
+      example: An unexpected error occurred on server
+    errorCode:
+      type: string
+      example: SERVER_ERROR
+
+InvalidInputResponse:
+  type: object
+  properties:
+    status:
+      type: string
+      example: error
+    statusCode:
+      type: integer
+      example: 400
+    message:
+      type: string
+      example: Email and password are required
+    errorCode:
+      type: string
+      example: INVALID_INPUT
+
+InvalidCredentialResponse:
+  type: object
+  properties:
+    status:
+      type: string
+      example: error
+    statusCode:
+      type: integer
+      example: 401
+    message:
+      type: string
+      example: Invalid email or password
+    errorCode:
+      type: string
+      example: INVALID_CREDENTIALS
+
+UserNotVerifiedResponse:
+  type: object
+  properties:
+    status:
+      type: string
+      example: error
+    statusCode:
+      type: integer
+      example: 403
+    message:
+      type: string
+      example: Your account has not been verified by an admin yet
+    errorCode:
+      type: string
+      example: USER_NOT_VERIFIED
+
+UserProfileSuccessResponse:
+  type: object
+  properties:
+    status:
+      type: string
+      example: success
+    statusCode:
+      type: integer
+      example: 200
+    message:
+      type: string
+      example: User profile retrieved successfully
+    data:
+      type: object
+      properties:
+        profile_id:
+          type: integer
+          example: 1
+        user_id:
+          type: string
+          format: uuid
+          example: 123e4567-e89b-12d3-a456-426614174000
+        birth_date:
+          type: string
+          format: date
+          nullable: true
+          example: "1999-01-01"
+        phone_number:
+          type: string
+          nullable: true
+          example: "081234567890"
+        profile_photo:
+          type: string
+          nullable: true
+          example: https://example.com/profile_photos/photo1.jpg
+        last_login:
+          type: string
+          format: date-time
+          nullable: true
+          example: "2025-06-17T14:20:00.000+07:00"
+        created_at:
+          type: string
+          format: date-time
+          example: "2025-06-17T12:00:00.000+07:00"
+        updated_at:
+          type: string
+          format: date-time
+          example: "2025-06-17T14:00:00.000+07:00"
+
+UnauthorizedResponse:
+  type: object
+  properties:
+    status:
+      type: string
+      example: error
+    statusCode:
+      type: integer
+      example: 401
+    message:
+      type: string
+      example: Unauthorized access
+    errorCode:
+      type: string
+      example: UNAUTHORIZED
+
+UserNotFoundResponse:
+  type: object
+  properties:
+    status:
+      type: string
+      example: error
+    statusCode:
+      type: integer
+      example: 404
+    message:
+      type: string
+      example: User not found
+    errorCode:
+      type: string
+      example: USER_NOT_FOUND
+
+UpdateUserProfileSuccessResponse:
+  type: object
+  properties:
+    status:
+      type: string
+      example: success
+    statusCode:
+      type: integer
+      example: 200
+    message:
+      type: string
+      example: Profile updated successfully
+    data:
+      type: object
+      properties:
+        birth_date:
+          type: string
+          format: date
+          example: "1999-05-01"
+        phone_number:
+          type: string
+          example: "08123456789"
+        profile_photo:
+          type: string
+          example: "https://example.com/photos/profile1.jpg"
+
+InvalidProfileInputResponse:
+  type: object
+  properties:
+    status:
+      type: string
+      example: error
+    statusCode:
+      type: integer
+      example: 400
+    message:
+      type: string
+      example: At least one field is required
+    errorCode:
+      type: string
+      example: INVALID_INPUT
+
+ProfileNotFoundResponse:
+  type: object
+  properties:
+    status:
+      type: string
+      example: error
+    statusCode:
+      type: integer
+      example: 404
+    message:
+      type: string
+      example: Profile not found
+    errorCode:
+      type: string
+      example: PROFILE_NOT_FOUND

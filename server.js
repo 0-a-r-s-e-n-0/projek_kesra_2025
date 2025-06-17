@@ -14,6 +14,7 @@ const HOST = 'localhost' || '192.168.100.122';
 const app = express();
 
 app.use(cors());
+app.use('/api', express.static('docs'));
 
 // Swagger route
 app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));

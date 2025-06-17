@@ -1,0 +1,25 @@
+UserProfile:
+      type: object
+      properties:
+        profile_id:
+          type: integer
+        user_id:
+          type: string
+          format: uuid
+        birth_date:
+          type: string
+          format: date
+        phone_number:
+          type: string
+          maxLength: 20
+        profile_photo:
+          type: string
+        last_login:
+          type: string
+          format: date-time
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time

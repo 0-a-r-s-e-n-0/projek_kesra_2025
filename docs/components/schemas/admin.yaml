@@ -1,0 +1,37 @@
+Admin:
+      type: object
+      properties:
+        admin_id:
+          type: string
+          format: uuid
+        username:
+          type: string
+          maxLength: 255
+        email:
+          type: string
+          format: email
+        password_hash:
+          type: string
+        full_name:
+          type: string
+          maxLength: 255
+        gender:
+          type: string
+          enum: [Pria, Wanita]
+        phone_number:
+          type: string
+          maxLength: 20
+        nip:
+          type: string
+          maxLength: 25
+        positions:
+          type: string
+          maxLength: 100
+        address:
+          type: string
+        suspend:
+          type: boolean
+          default: false
+        created_at:
+          type: string
+          format: date-time

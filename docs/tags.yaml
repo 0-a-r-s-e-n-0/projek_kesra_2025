@@ -1,3 +1,6 @@
 tags:
-  - name: Auth
-    description: Authentication routes (register and login)
+  - name: User
+    description: User routes (register, login and user profile)
+
+  - name: Mail
+    description: Mail routes (register, login and user profile)

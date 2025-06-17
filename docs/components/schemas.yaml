@@ -1,0 +1,155 @@
+components:
+  schemas:
+
+    # ===================== ADMINS =====================
+    Admin:
+      type: object
+      properties:
+        admin_id:
+          type: string
+          format: uuid
+        username:
+          type: string
+          maxLength: 255
+        email:
+          type: string
+          format: email
+        password_hash:
+          type: string
+        full_name:
+          type: string
+          maxLength: 255
+        gender:
+          type: string
+          enum: [Pria, Wanita]
+        phone_number:
+          type: string
+          maxLength: 20
+        nip:
+          type: string
+          maxLength: 25
+        positions:
+          type: string
+          maxLength: 100
+        address:
+          type: string
+        suspend:
+          type: boolean
+          default: false
+        created_at:
+          type: string
+          format: date-time
+
+    # ===================== USERS =====================
+    User:
+      type: object
+      properties:
+        user_id:
+          type: string
+          format: uuid
+        username:
+          type: string
+          maxLength: 255
+        email:
+          type: string
+          format: email
+        password_hash:
+          type: string
+        nik:
+          type: string
+          maxLength: 35
+        full_name:
+          type: string
+          maxLength: 255
+        gender:
+          type: string
+          enum: [Pria, Wanita]
+        address:
+          type: string
+          maxLength: 255
+        id_card_photo:
+          type: string
+        is_verified:
+          type: boolean
+          default: false
+        verified_at:
+          type: string
+          format: date-time
+        verified_by_admin_id:
+          type: string
+          format: uuid
+          nullable: true
+        suspend:
+          type: boolean
+          default: false
+        register_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    # ===================== USER PROFILES =====================
+    UserProfile:
+      type: object
+      properties:
+        profile_id:
+          type: integer
+        user_id:
+          type: string
+          format: uuid
+        birth_date:
+          type: string
+          format: date
+        phone_number:
+          type: string
+          maxLength: 20
+        profile_photo:
+          type: string
+        last_login:
+          type: string
+          format: date-time
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    # ===================== INCOMING MAIL =====================
+    IncomingMail:
+      type: object
+      properties:
+        mail_id:
+          type: string
+          format: uuid
+        mail_no:
+          type: string
+        mail_file:
+          type: string
+        input_at:
+          type: string
+          format: date-time
+        input_by_admin_id:
+          type: string
+          format: uuid
+          nullable: true
+
+    # ===================== OUTGOING MAIL =====================
+    OutgoingMail:
+      type: object
+      properties:
+        mail_id:
+          type: string
+          format: uuid
+        mail_no:
+          type: string
+        mail_file:
+          type: string
+        input_at:
+          type: string
+          format: date-time
+        input_by_admin_id:
+          type: string
+          format: uuid
+          nullable: true
