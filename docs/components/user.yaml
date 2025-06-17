@@ -1,66 +1,58 @@
-User:
-  type: object
-  properties:
-    user_id:
-      type: string
-      format: uuid
-    username:
-      type: string
-      maxLength: 255
-    email:
-      type: string
-      format: email
-      maxLength: 255
-    password_hash:
-      type: string
-    nik:
-      type: string
-      maxLength: 35
-    full_name:
-      type: string
-      maxLength: 255
-    gender:
-      type: string
-      enum:
-        - Pria
-        - Wanita
-      maxLength: 20
-    address:
-      type: string
-      maxLength: 255
-    id_card_photo:
-      type: string
-    is_verified:
-      type: boolean
-      default: false
-    verified_at:
-      type: string
-      format: date-time
-      nullable: true
-    verified_by_admin_id:
-      type: string
-      format: uuid
-      nullable: true
-    suspend:
-      type: boolean
-      default: false
-    register_at:
-      type: string
-      format: date-time
-    updated_at:
-      type: string
-      format: date-time
-  required:
-    - user_id
-    - username
-    - email
-    - password_hash
-    - nik
-    - full_name
-    - gender
-    - address
-    - id_card_photo
-    - is_verified
-    - suspend
-    - register_at
-    - updated_at
+components:
+  schemas:
+    User:
+      type: object
+      required:
+        - username
+        - email
+        - password
+      properties:
+        user_id:
+          type: string
+          format: uuid
+        username:
+          type: string
+          maxLength: 255
+        email:
+          type: string
+          format: email
+          maxLength: 255
+        password_hash:
+          type: string
+        nik:
+          type: string
+          maxLength: 35
+        full_name:
+          type: string
+          maxLength: 255
+        gender:
+          type: string
+          enum:
+            - Pria
+            - Wanita
+          maxLength: 20
+        address:
+          type: string
+          maxLength: 255
+        id_card_photo:
+          type: string
+        is_verified:
+          type: boolean
+          default: false
+        verified_at:
+          type: string
+          format: date-time
+          nullable: true
+        verified_by_admin_id:
+          type: string
+          format: uuid
+          nullable: true
+        suspend:
+          type: boolean
+          default: false
+        register_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time

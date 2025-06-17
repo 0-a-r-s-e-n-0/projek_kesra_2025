@@ -1,0 +1,58 @@
+paths:
+  /api/users/signup:
+    post:
+      tags:
+        - Auth
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Register Input'
+      responses:
+        201:
+          description: User registered successfully
+          content:
+            application/json:
+              example:
+                status: success
+                message: User registered
+                data:
+                  user_id: 123
+                  username: example
+        400:
+          description: Invalid input
+          content:
+            application/json:
+              example:
+                status: fail
+                message: Email already in use
+
+  /api/users/login:
+    post:
+      tags:
+        - Auth
+      summary: Login and get JWT token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Login Input'
+      responses:
+        200:
+          description: Login successful
+          content:
+            application/json:
+              example:
+                status: success
+                message: Login success
+                token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        401:
+          description: Unauthorized (wrong credentials)
+          content:
+            application/json:
+              example:
+                status: fail
+                message: Email or password incorrect

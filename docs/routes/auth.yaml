@@ -4,55 +4,44 @@ paths:
       tags:
         - Auth
       summary: Register a new user
+      description: Create a new user account with required information and hashed password
       requestBody:
         required: true
         content:
           application/json:
-            schema:
-              $ref: '#/components/schemas/Register Input'
+            $ref: '#/components/schemas/User'
       responses:
-        201:
+        '201':
           description: User registered successfully
           content:
             application/json:
-              example:
-                status: success
-                message: User registered
-                data:
-                  user_id: 123
-                  username: example
-        400:
-          description: Invalid input
-          content:
-            application/json:
-              example:
-                status: fail
-                message: Email already in use
-
-  /api/users/login:
-    post:
-      tags:
-        - Auth
-      summary: Login and get JWT token
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Login Input'
-      responses:
-        200:
-          description: Login successful
-          content:
-            application/json:
-              example:
-                status: success
-                message: Login success
-                token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-        401:
-          description: Unauthorized (wrong credentials)
-          content:
-            application/json:
-              example:
-                status: fail
-                message: Email or password incorrect
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  statusCode:
+                    type: integer
+                    example: 201
+                  message:
+                    type: string
+                    example: User registered successfully
+                  data:
+                    type: object
+                    properties:
+                      username:
+                        type: string
+                        example: johndoe
+                      email:
+                        type: string
+                        example: johndoe@example.com
+                      full_name:
+                        type: string
+                        example: John Doe
+        '400':
+          description: Bad request - missing or invalid input
+        '409':
+          description: Conflict - user data is not correct
+        '500':
+          description: Server error

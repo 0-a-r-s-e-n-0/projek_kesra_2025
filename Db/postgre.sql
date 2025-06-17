@@ -1,3 +1,5 @@
+CREATE DATABASE kesra_gubsu;
+
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp"; --jalankan 1x saja untuk mengaktifkan ekstensi UUID
 
 CREATE TABLE admins (
