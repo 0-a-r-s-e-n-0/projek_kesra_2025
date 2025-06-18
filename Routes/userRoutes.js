@@ -15,6 +15,7 @@ router.post('/login', userController.login)
 
 router.get('/profiles', userAuth.userAuth, userController.getProfile);
 
-router.patch('/profile', userAuth.userAuth, userController.updateProfile);
+// router.patch('/profile', userAuth.userAuth, userController.updateProfile);
+router.patch('/profile', userAuth.userAuth, userController.updateUserData);
 
 module.exports = router

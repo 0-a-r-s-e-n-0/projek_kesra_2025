@@ -20,6 +20,9 @@ UserSignupInput:
     password:
       type: string
       example: myStrongPassword123!
+    confirm_password:
+      type: string
+      example: myStrongPassword123!
     nik:
       type: string
       example: "3276010101010001"

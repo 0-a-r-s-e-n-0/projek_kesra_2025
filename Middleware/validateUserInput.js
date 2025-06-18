@@ -3,7 +3,7 @@ const validateUserInputForRegistration = (req, res, next) => {
         username,
         email,
         password,
-        confirmPassword,
+        confirm_password,
         nik,
         full_name,
         gender,
@@ -16,7 +16,7 @@ const validateUserInputForRegistration = (req, res, next) => {
     if (!username) missingFields.push('username');
     if (!email) missingFields.push('email');
     if (!password) missingFields.push('password');
-    if (!confirmPassword) missingFields.push('confirm password');
+    if (!confirm_password) missingFields.push('confirm password');
     if (!nik) missingFields.push('nik');
     if (!full_name) missingFields.push('full name');
     if (!gender) missingFields.push('gender');
@@ -54,11 +54,11 @@ const validateUserInputForRegistration = (req, res, next) => {
     }
 
     // Password match and strength
-    if (password !== confirmPassword) {
+    if (password !== confirm_password) {
         return res.status(400).json({
             status: 'error',
             statusCode: 400,
-            message: 'Password and confirmPassword do not match',
+            message: 'Password and confirm_password do not match',
             errorCode: 'PASSWORD_MISMATCH'
         });
     }
