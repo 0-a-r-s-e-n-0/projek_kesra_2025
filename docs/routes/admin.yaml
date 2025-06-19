@@ -1,0 +1,38 @@
+paths:
+  api/admin/login:
+    post:
+      summary: Admin Login
+      description: Login untuk admin
+      tags:
+        - Admin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '/api/components/schemas/user.yaml#/UserLoginInput'
+      responses:
+        '200':
+          description: Successful login
+          content:
+            application/json:
+              schema:
+                $ref: '/api/components/schemas/responses.yaml#/AdminLoginSuccessResponse'
+        '400':
+          description: Invalid input (missing email or password)
+          content:
+            application/json:
+              schema:
+                $ref: '/api/components/schemas/responses.yaml#/InvalidInputResponse'
+        '401':
+          description: Email or password is incorrect
+          content:
+            application/json:
+              schema:
+                $ref: '/api/components/schemas/responses.yaml#/InvalidCredentialResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '/api/components/schemas/responses.yaml#/ServerErrorResponse'

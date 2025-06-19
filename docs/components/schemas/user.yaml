@@ -60,15 +60,41 @@ UpdateUserProfileInput:
     birth_date:
       type: string
       format: date
-      example: "1999-05-01"
+      nullable: true
+      example: "2003-11-23"
     phone_number:
       type: string
-      example: "08123456789"
+      nullable: true
+      example: null
     profile_photo:
       type: string
+      nullable: true
       format: uri
-      example: "https://example.com/photos/profile1.jpg"
+      example: null
+    username:
+      type: string
+      example: lixia
+    email:
+      type: string
+      format: email
+      example: lix@gmail.com
+    nik:
+      type: string
+      example: "120722346786291200012"
+    full_name:
+      type: string
+      example: arsen
+    gender:
+      type: string
+      example: Pria
+    address:
+      type: string
+      example: kajaf
+    id_card_photo:
+      type: string
+      example: uploads\\id_card_photo_guest_2025-06-19T08-52-52.335Z_534412.png
   additionalProperties: false
+
 
 
 User:

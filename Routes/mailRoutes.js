@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const mailController = require('../Controllers/mailController');
-const userAuth = require('../Middleware/userAuth')
+const userAuth = require('../Middlewares/userAuth')
 
 
 

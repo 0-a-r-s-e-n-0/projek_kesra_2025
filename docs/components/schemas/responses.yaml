@@ -158,39 +158,70 @@ UserProfileSuccessResponse:
     data:
       type: object
       properties:
-        profile_id:
-          type: integer
-          example: 1
         user_id:
           type: string
           format: uuid
-          example: 123e4567-e89b-12d3-a456-426614174000
-        birth_date:
+          example: 9a49ab8d-864d-41fe-8e1e-c2ed315b8220
+        username:
           type: string
-          format: date
-          nullable: true
-          example: "1999-01-01"
-        phone_number:
+          example: lixia
+        email:
           type: string
-          nullable: true
-          example: "081234567890"
-        profile_photo:
+          format: email
+          example: lix@gmail.com
+        nik:
           type: string
-          nullable: true
-          example: https://example.com/profile_photos/photo1.jpg
-        last_login:
+          example: "120722346786291200012"
+        full_name:
+          type: string
+          example: arsen
+        gender:
+          type: string
+          example: Pria
+        address:
+          type: string
+          example: kajaf
+        id_card_photo:
+          type: string
+          example: uploads\\id_card_photo_guest_2025-06-19T08-52-52.335Z_534412.png
+        register_at:
+          type: string
+          format: date-time
+          example: "2025-06-19T15:52:52.629+07:00"
+        is_verified:
+          type: boolean
+          example: true
+        verified_at:
           type: string
           format: date-time
           nullable: true
-          example: "2025-06-17T14:20:00.000+07:00"
-        created_at:
+          example: "2025-06-19T15:56:14.322+07:00"
+        verified_by_admin_id:
           type: string
-          format: date-time
-          example: "2025-06-17T12:00:00.000+07:00"
-        updated_at:
-          type: string
-          format: date-time
-          example: "2025-06-17T14:00:00.000+07:00"
+          format: uuid
+          nullable: true
+          example: 6bfd3e3f-7d10-48cd-adac-6f198459a811
+        profile:
+          type: object
+          properties:
+            birth_date:
+              type: string
+              format: date
+              nullable: true
+              example: null
+            phone_number:
+              type: string
+              nullable: true
+              example: null
+            profile_photo:
+              type: string
+              nullable: true
+              example: null
+            updated_at:
+              type: string
+              format: date-time
+              example: "2025-06-19T08:52:52.642Z"
+
 
 UnauthorizedResponse:
   type: object
@@ -235,20 +266,99 @@ UpdateUserProfileSuccessResponse:
       example: 200
     message:
       type: string
-      example: Profile updated successfully
+      example: User and profile updated successfully
     data:
       type: object
       properties:
-        birth_date:
-          type: string
-          format: date
-          example: "1999-05-01"
-        phone_number:
-          type: string
-          example: "08123456789"
-        profile_photo:
-          type: string
-          example: "https://example.com/photos/profile1.jpg"
+        user:
+          type: object
+          properties:
+            user_id:
+              type: string
+              format: uuid
+              example: 9a49ab8d-864d-41fe-8e1e-c2ed315b8220
+            username:
+              type: string
+              example: lixia
+            email:
+              type: string
+              format: email
+              example: lix@gmail.com
+            nik:
+              type: string
+              example: "120722346786291200012"
+            full_name:
+              type: string
+              example: arsen
+            gender:
+              type: string
+              example: Pria
+            address:
+              type: string
+              example: kajaf
+            id_card_photo:
+              type: string
+              example: uploads\\id_card_photo_guest_2025-06-19T08-52-52.335Z_534412.png
+            is_verified:
+              type: boolean
+              example: true
+            verified_at:
+              type: string
+              format: date-time
+              nullable: true
+              example: "2025-06-19T08:56:14.322Z"
+            verified_by_admin_id:
+              type: string
+              format: uuid
+              nullable: true
+              example: 6bfd3e3f-7d10-48cd-adac-6f198459a811
+            suspend:
+              type: boolean
+              example: false
+            register_at:
+              type: string
+              format: date-time
+              example: "2025-06-19T08:52:52.629Z"
+            updated_at:
+              type: string
+              format: date-time
+              example: "2025-06-19T15:52:52.629+07:00"
+        profile:
+          type: object
+          properties:
+            profile_id:
+              type: integer
+              example: 29
+            user_id:
+              type: string
+              format: uuid
+              example: 9a49ab8d-864d-41fe-8e1e-c2ed315b8220
+            birth_date:
+              type: string
+              format: date
+              example: "2003-11-23"
+            phone_number:
+              type: string
+              nullable: true
+              example: null
+            profile_photo:
+              type: string
+              nullable: true
+              example: null
+            last_login:
+              type: string
+              format: date-time
+              nullable: true
+              example: null
+            created_at:
+              type: string
+              format: date-time
+              example: "2025-06-19T08:52:52.642Z"
+            updated_at:
+              type: string
+              format: date-time
+              example: "2025-06-19T16:13:48.437+07:00"
+
 
 InvalidProfileInputResponse:
   type: object
@@ -281,3 +391,37 @@ ProfileNotFoundResponse:
     errorCode:
       type: string
       example: PROFILE_NOT_FOUND
+
+AdminLoginSuccessResponse:
+  type: object
+  properties:
+    status:
+      type: string
+      example: success
+    statusCode:
+      type: integer
+      example: 200
+    message:
+      type: string
+      example: Admin logged in successfully
+    data:
+      type: object
+      properties:
+        token:
+          type: string
+          description: JWT token for authentication
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZiZmQzZTNmLTdkMTAtNDhjZC1hZGFjLTZmMTk4NDU5YTgxMSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc1MDMyNTEzOCwiZXhwIjoxNzUwNDExNTM4fQ.KwwKn5hY55t4iIkPeP-OjpVj8VXZlzgJ6jT9peCOkrA
+        admin:
+          type: object
+          properties:
+            admin_id:
+              type: string
+              format: uuid
+              example: 6bfd3e3f-7d10-48cd-adac-6f198459a811
+            full_name:
+              type: string
+              example: Admin Utama
+            email:
+              type: string
+              format: email
+              example: admin122@example.com

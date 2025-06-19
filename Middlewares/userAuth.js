@@ -1,5 +1,9 @@
 const db = require('../Models');
+const { verifyToken } = require('../helpers/tokenHelper');
+const { deleteUploadedFile } = require('../helpers/fileHelper');
 const jwt = require('jsonwebtoken')
+const fs = require('fs');
+const path = require('path');
 require('dotenv').config();
 
 const User = db.User;
@@ -8,20 +12,14 @@ const User = db.User;
 const saveUser = async (req, res, next) => {
     try {
         const { username, email, nik } = req.body;
-        // if (!username || !email) {
-        //     return res.status(400).json({
-        //         status: 'error',
-        //         statusCode: 400,
-        //         message: 'Username and email are required',
-        //         errorCode: 'INVALID_INPUT'
-        //     });
-        // }
+        const [existingUsername, existingEmail, existingNIK] = await Promise.all([
+            User.findOne({ where: { username } }),
+            User.findOne({ where: { email } }),
+            User.findOne({ where: { nik } }),
+        ]);
 
-        // Check if username exists
-        const existingUsername = await User.findOne({
-            where: { username }
-        });
         if (existingUsername) {
+            deleteUploadedFile(req.files);
             return res.status(409).json({
                 status: 'error',
                 statusCode: 409,
@@ -30,11 +28,8 @@ const saveUser = async (req, res, next) => {
             });
         }
 
-        // Check if email exists
-        const existingEmail = await User.findOne({
-            where: { email }
-        });
         if (existingEmail) {
+            deleteUploadedFile(req.files);
             return res.status(409).json({
                 status: 'error',
                 statusCode: 409,
@@ -43,11 +38,8 @@ const saveUser = async (req, res, next) => {
             });
         }
 
-        // Check if nik exists
-        const existingNIK = await User.findOne({
-            where: { nik }
-        });
         if (existingNIK) {
+            deleteUploadedFile(req.files);
             return res.status(409).json({
                 status: 'error',
                 statusCode: 409,
@@ -58,6 +50,7 @@ const saveUser = async (req, res, next) => {
 
         next();
     } catch (error) {
+        deleteUploadedFile(req.files);
         console.error('Save user error:', error);
         return res.status(500).json({
             status: 'error',
@@ -68,11 +61,10 @@ const saveUser = async (req, res, next) => {
     }
 };
 
+// Middleware to check if user is authenticate or not
 const userAuth = async (req, res, next) => {
     try {
-        // Ambil token dari cookie atau header
         const token = req.cookies.jwt || (req.headers.authorization && req.headers.authorization.split(' ')[1]);
-
         if (!token) {
             return res.status(401).json({
                 status: 'error',
@@ -82,39 +74,8 @@ const userAuth = async (req, res, next) => {
             });
         }
 
-        // Verifikasi token
-        let decoded;
-        try {
-            decoded = jwt.verify(token, process.env.JWT_SECRET);
-        } catch (err) {
-            if (err.name === 'TokenExpiredError') {
-                return res.status(401).json({
-                    status: 'error',
-                    statusCode: 401,
-                    message: 'Token has expired',
-                    errorCode: 'TOKEN_EXPIRED'
-                });
-            } else {
-                return res.status(401).json({
-                    status: 'error',
-                    statusCode: 401,
-                    message: 'Invalid token',
-                    errorCode: 'TOKEN_INVALID'
-                });
-            }
-        }
+        const userId = verifyToken(token); // ✅ pakai helper
 
-        const userId = decoded.sub || decoded.user_id || decoded.id;
-        if (!userId) {
-            return res.status(401).json({
-                status: 'error',
-                statusCode: 401,
-                message: 'Invalid token payload',
-                errorCode: 'TOKEN_PAYLOAD_INVALID'
-            });
-        }
-
-        // Opsional: cek apakah user masih ada di DB
         const user = await User.findByPk(userId);
         if (!user) {
             return res.status(401).json({
@@ -125,18 +86,38 @@ const userAuth = async (req, res, next) => {
             });
         }
 
-        req.user = { user_id: userId }; // Atau: req.user = user; kalau mau lengkap
+        const ip = req.ip || req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+        console.log(`[AUTH] user ${userId} access from IP ${ip} at ${new Date().toISOString()}`);
+
+        req.user = { user_id: userId };
         next();
     } catch (error) {
+        let message = 'Server error during authentication';
+        let errorCode = 'SERVER_ERROR';
+        let statusCode = 500;
+
+        if (error.message === 'TOKEN_EXPIRED') {
+            message = 'Token has expired';
+            errorCode = 'TOKEN_EXPIRED';
+            statusCode = 401;
+        } else if (error.message === 'TOKEN_INVALID') {
+            message = 'Invalid token';
+            errorCode = 'TOKEN_INVALID';
+            statusCode = 401;
+        } else if (error.message === 'TOKEN_PAYLOAD_INVALID') {
+            message = 'Invalid token payload';
+            errorCode = 'TOKEN_PAYLOAD_INVALID';
+            statusCode = 401;
+        }
+
         console.error('Auth error:', error);
-        return res.status(500).json({
+        return res.status(statusCode).json({
             status: 'error',
-            statusCode: 500,
-            message: 'Server error during authentication',
-            errorCode: 'SERVER_ERROR'
+            statusCode,
+            message,
+            errorCode
         });
     }
 };
-
 
 module.exports = { userAuth, saveUser };

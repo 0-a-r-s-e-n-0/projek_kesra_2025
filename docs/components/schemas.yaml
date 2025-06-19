@@ -1,6 +1,5 @@
 components:
   schemas:
-
     # ===================== ADMINS =====================
     Admin:
       type: object
@@ -37,6 +36,9 @@ components:
           type: boolean
           default: false
         created_at:
+          type: string
+          format: date-time
+        updated_at:
           type: string
           format: date-time
 

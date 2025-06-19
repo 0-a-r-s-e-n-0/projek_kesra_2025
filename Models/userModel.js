@@ -70,18 +70,13 @@ module.exports = (sequelize) => {
         suspend: {
             type: DataTypes.BOOLEAN,
             defaultValue: false
-        },
-        register_at: {
-            type: DataTypes.DATE,
-            defaultValue: DataTypes.NOW
-        },
-        updated_at: {
-            type: DataTypes.DATE,
-            defaultValue: DataTypes.NOW
         }
     }, {
         tableName: 'users',
-        timestamps: false // Karena kamu pakai created_at / updated_at manual
+        timestamps: true, // Aktifkan agar Sequelize handle timestamps
+        createdAt: 'register_at',
+        updatedAt: 'updated_at',
+        underscored: true
     });
 
     return User;

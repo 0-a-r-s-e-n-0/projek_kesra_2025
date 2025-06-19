@@ -42,7 +42,7 @@ paths:
                         type: string
                         example: John Doe
         '409':
-          description: Data conflict (email or username already exists)
+          description: Data conflict (email or username or NIK already exists)
           content:
             application/json:
               schema:

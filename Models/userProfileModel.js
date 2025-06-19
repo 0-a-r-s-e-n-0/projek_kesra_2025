@@ -33,18 +33,13 @@ module.exports = (sequelize) => {
         last_login: {
             type: DataTypes.DATE,
             allowNull: true
-        },
-        created_at: {
-            type: DataTypes.DATE,
-            defaultValue: DataTypes.NOW
-        },
-        updated_at: {
-            type: DataTypes.DATE,
-            defaultValue: DataTypes.NOW
         }
     }, {
         tableName: 'user_profiles',
-        timestamps: false
+        timestamps: true,              // ✅ otomatis handle created_at & updated_at
+        createdAt: 'created_at',
+        updatedAt: 'updated_at',
+        underscored: true
     });
 
     return UserProfile;

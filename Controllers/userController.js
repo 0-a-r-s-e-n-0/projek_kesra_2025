@@ -1,7 +1,12 @@
 const bcrypt = require("bcrypt");
 const db = require("../Models");
-const jwt = require("jsonwebtoken");
-const { DateTime } = require('luxon');
+const { generateToken } = require('../helpers/tokenHelper');
+const { setAuthCookie } = require('../helpers/cookieHelper');
+const { getUploadedFilePath, deleteUploadedFile } = require('../helpers/fileHelper');
+const { sendSuccess, sendError } = require('../helpers/responseHelper');
+const { formatToWIB } = require('../helpers/timeHelper');
+const { Op } = require("sequelize");
+
 require('dotenv').config();
 
 const User = db.User;
@@ -9,173 +14,78 @@ const UserProfile = db.UserProfile;
 
 const signup = async (req, res) => {
     const transaction = await db.sequelize.transaction();
+    const saltRounds = parseInt(process.env.BCRYPT_SALT_ROUNDS) || 10;
+
     try {
+        const { username, email, password, nik, full_name, gender, address } = req.body;
+        const file = req.files?.id_card_photo?.[0];
+        const photoPath = getUploadedFilePath(file);
 
-        const { username, email, password, nik, full_name, gender, address, id_card_photo } = req.body;
-
-        const data = {
+        const user = await User.create({
             username,
             email,
-            password_hash: await bcrypt.hash(password, 10),
+            password_hash: await bcrypt.hash(password, saltRounds),
             nik,
             full_name,
             gender,
             address,
-            id_card_photo
-        };
+            id_card_photo: photoPath
+        }, { transaction });
 
-        const user = await User.create(data, { transaction });
+        await UserProfile.create({ user_id: user.user_id }, { transaction });
+        await transaction.commit();
 
-        if (user) {
-            // Create user profile
-            await UserProfile.create({
-                user_id: user.user_id,
-            }, { transaction });
+        return sendSuccess(res, 201, 'User registered successfully', {
+            username: user.username,
+            email: user.email,
+            full_name: user.full_name,
+        });
 
-            await transaction.commit();
-
-            // console.log('User register:', JSON.stringify(user, null, 2));
-            // console.log('UserProfile created:', JSON.stringify(userProfile, null, 2));
-
-            return res.status(201).json({
-                status: 'success',
-                statusCode: 201,
-                message: 'User registered successfully',
-                data: {
-                    username: user.username,
-                    email: user.email,
-                    full_name: user.full_name,
-                }
-            });
-        } else {
-            await transaction.rollback();
-            return res.status(409).json({
-                status: 'error',
-                statusCode: 409,
-                message: 'Details are not correct"',
-                errorCode: 'CONFLICT_DATA'
-            });
-        }
     } catch (error) {
         await transaction.rollback();
-
+        deleteUploadedFile(req.file);
         console.error('Signup error:', error);
-        return res.status(500).json({
-            status: 'error',
-            statusCode: 500,
-            message: 'An unexpected error occurred during register',
-            errorCode: 'SERVER_ERROR'
-        });
+        return sendError(res, 500, 'An unexpected error occurred during register', 'SERVER_ERROR');
     }
 };
-
 
 const login = async (req, res) => {
     try {
         const { email, password } = req.body;
 
-        if (!email || !password) {
-            return res.status(400).json({
-                status: 'error',
-                statusCode: 400,
-                message: 'Email and password are required',
-                errorCode: 'INVALID_INPUT'
-            });
+        const user = await User.findOne({ where: { email } });
+        if (!user || !(await bcrypt.compare(password, user.password_hash))) {
+            return sendError(res, 401, 'Invalid email or password', 'INVALID_CREDENTIALS');
         }
 
-        const user = await User.findOne({
-            where: {
-                email: email
-            }
+        if (!user.is_verified) {
+            return sendError(res, 403, 'Your account has not been verified by an admin yet', 'USER_NOT_VERIFIED');
+        }
 
+        const token = generateToken(user.user_id);
+        setAuthCookie(res, token);
+
+        return sendSuccess(res, 200, 'User logged in successfully', {
+            token: token,
+            user: {
+                user_id: user.user_id,
+                username: user.username,
+                email: user.email,
+                nik: user.nik,
+                full_name: user.full_name,
+                gender: user.gender,
+                address: user.address,
+                id_card_photo: user.id_card_photo,
+                register_at: formatToWIB(user.register_at),
+                is_verified: user.is_verified,
+                verified_at: formatToWIB(user.verified_at),
+                verified_by_admin_id: user.verified_by_admin_id,
+            }
         });
 
-        if (user) {
-            const isSame = await bcrypt.compare(password, user.password_hash);
-
-            //generate token with the user's id and the secretKey in the env file
-            if (isSame) {
-
-                if (!user.is_verified) {
-                    return res.status(403).json({
-                        status: 'error',
-                        statusCode: 403,
-                        message: 'Your account has not been verified by an admin yet',
-                        errorCode: 'USER_NOT_VERIFIED'
-                    });
-                }
-
-                const payload = {
-                    id: user.user_id,
-                };
-
-                let token = jwt.sign(payload, process.env.JWT_SECRET, {
-                    expiresIn: '1d',
-                });
-
-                const register_at = DateTime.fromJSDate(user.register_at)
-                    .setZone('Asia/Jakarta')
-                    .toFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZZ");
-
-                //go ahead and generate a cookie for the user
-                res.cookie("jwt", token, {
-                    maxAge: 1 * 24 * 60 * 60 * 1000,
-                    httpOnly: true,
-                    // secure: true,        // Hanya dikirim lewat HTTPS (gunakan saat production)
-                    // sameSite: 'strict'   // Lindungi dari CSRF, tergantung kebutuhan
-                });
-
-                // console.log('User login:', JSON.stringify(user, null, 2));
-                // console.log('User profile:', JSON.stringify(profile, null, 2));
-                // console.log('Token:', token);
-
-                return res.status(200).json({
-                    status: 'success',
-                    statusCode: 200,
-                    message: 'User logged in successfully',
-                    data: {
-                        "Token: ": token,
-                        "User": {
-                            user_id: user.user_id,
-                            username: user.username,
-                            email: user.email,
-                            nik: user.nik,
-                            full_name: user.full_name,
-                            gender: user.gender,
-                            address: user.address,
-                            id_card_photo: user.id_card_photo,
-                            register_at: register_at,
-                            is_verified: user.is_verified,
-                            verified_at: user.verified_at,
-                            verified_by_admin_id: user.verified_by_admin_id,
-                        },
-                    }
-                });
-            } else {
-                return res.status(401).json({
-                    status: 'error',
-                    statusCode: 401,
-                    message: 'Invalid email or password',
-                    errorCode: 'INVALID_CREDENTIALS'
-                });
-            }
-        } else {
-            return res.status(401).json({
-                status: 'error',
-                statusCode: 401,
-                message: 'Invalid email or password',
-                errorCode: 'INVALID_CREDENTIALS'
-            });
-        }
     } catch (error) {
-        console.log('Login error:', error);
-
-        return res.status(500).json({
-            status: 'error',
-            statusCode: 500,
-            message: 'An unexpected error occurred during login',
-            errorCode: 'SERVER_ERROR'
-        });
+        console.error('Login error:', error);
+        return sendError(res, 500, 'An unexpected error occurred during login', 'SERVER_ERROR');
     }
 };
 
@@ -183,206 +93,162 @@ const getProfile = async (req, res) => {
     try {
         const userId = req.user?.user_id;
 
-        const profile = await UserProfile.findOne({ where: { user_id: userId } });
-
-        if (profile) {
-            return res.status(200).json({
-                status: 'success',
-                statusCode: 200,
-                message: 'User profile retrieved successfully',
-                data: profile
-            });
+        if (!userId) {
+            return sendError(res, 401, 'Unauthorized: user token missing', 'UNAUTHORIZED');
         }
 
-        return res.status(404).json({
-            status: 'error',
-            statusCode: 404,
-            message: 'User not found',
-            errorCode: 'USER_NOT_FOUND'
+        const user = await User.findByPk(userId, {
+            attributes: {
+                exclude: ['password_hash']
+            },
+            include: [
+                {
+                    model: UserProfile,
+                    as: 'profile',
+                    attributes: ['birth_date', 'phone_number', 'profile_photo', 'updated_at']
+                }
+            ]
+        });
+
+        if (!user) {
+            return sendError(res, 404, 'User not found', 'USER_NOT_FOUND');
+        }
+
+        return sendSuccess(res, 200, 'User profile retrieved successfully', {
+            user_id: user.user_id,
+            username: user.username,
+            email: user.email,
+            nik: user.nik,
+            full_name: user.full_name,
+            gender: user.gender,
+            address: user.address,
+            id_card_photo: user.id_card_photo,
+            register_at: formatToWIB(user.register_at),
+            is_verified: user.is_verified,
+            verified_at: formatToWIB(user.verified_at),
+            verified_by_admin_id: user.verified_by_admin_id,
+            profile: user.profile || {}
         });
 
     } catch (error) {
-        console.error('Update profile error:', error);
-        return res.status(500).json({
-            status: 'error',
-            statusCode: 500,
-            message: 'Server error while retrieving profile',
-            errorCode: 'SERVER_ERROR'
-        });
+        console.error('Get profile error:', error);
+        return sendError(res, 500, 'Server error while retrieving profile', 'SERVER_ERROR');
     }
-}
+};
 
 const updateUserData = async (req, res) => {
+    const userId = req.user?.user_id;
+    if (!userId) {
+        return sendError(res, 401, 'Unauthorized: user token missing', 'UNAUTHORIZED');
+    }
+
+    const {
+        username,
+        email,
+        nik,
+        full_name,
+        gender,
+        address,
+        id_card_photo,
+        birth_date,
+        phone_number,
+        profile_photo
+    } = req.body;
+
     const transaction = await db.sequelize.transaction();
+    let committed = false;
+
     try {
-        const userId = req.user?.user_id;
-        const {
-            username,
-            email,
-            nik,
-            full_name,
-            gender,
-            address,
-            id_card_photo,
-            birth_date,
-            phone_number,
-            profile_photo
-        } = req.body;
-
-        if (
-            !username && !email && !nik && !full_name && !gender && !address && !id_card_photo &&
-            !birth_date && !phone_number && !profile_photo
-        ) {
-            return res.status(400).json({
-                status: 'error',
-                statusCode: 400,
-                message: 'At least one field must be provided',
-                errorCode: 'INVALID_INPUT'
-            });
-        }
-
-        // Cari user dan profile
         const user = await User.findByPk(userId, { transaction });
         const profile = await UserProfile.findOne({ where: { user_id: userId }, transaction });
 
         if (!user || !profile) {
             await transaction.rollback();
-            return res.status(404).json({
-                status: 'error',
-                statusCode: 404,
-                message: 'User or profile not found',
-                errorCode: 'DATA_NOT_FOUND'
-            });
+            deleteUploadedFile(req.files);
+            return sendError(res, 404, 'User or profile not found', 'DATA_NOT_FOUND');
         }
 
-        const userData = {};
-        if (username !== undefined) userData.username = username;
-        if (email !== undefined) userData.email = email;
-        if (nik !== undefined) userData.nik = nik;
-        if (full_name !== undefined) userData.full_name = full_name;
-        if (gender !== undefined) userData.gender = gender;
-        if (address !== undefined) userData.address = address;
-        if (id_card_photo !== undefined) userData.id_card_photo = id_card_photo;
-        userData.updated_at = new Date();
+        // 🔒 Validasi unik email & nik
+        if (email) {
+            const emailExists = await User.findOne({
+                where: {
+                    email,
+                    user_id: { [Op.ne]: userId }
+                }
+            });
+            if (emailExists) {
+                await transaction.rollback();
+                deleteUploadedFile(req.files);
+                return sendError(res, 400, 'Email is already in use by another user', 'EMAIL_EXISTS');
+            }
+        }
 
+        if (nik) {
+            const nikExists = await User.findOne({
+                where: {
+                    nik,
+                    user_id: { [Op.ne]: userId }
+                }
+            });
+            if (nikExists) {
+                await transaction.rollback();
+                deleteUploadedFile(req.files);
+                return sendError(res, 400, 'NIK is already in use by another user', 'NIK_EXISTS');
+            }
+        }
+
+        // 🚧 Bangun data update dinamis
+        const userData = {};
         const profileData = {};
+
+        if (username) userData.username = username;
+        if (email) userData.email = email;
+        if (nik) userData.nik = nik;
+        if (full_name) userData.full_name = full_name;
+        if (gender) userData.gender = gender;
+        if (address) userData.address = address;
+        if (id_card_photo) userData.id_card_photo = id_card_photo;
+
         if (birth_date !== undefined) profileData.birth_date = birth_date || null;
         if (phone_number !== undefined) profileData.phone_number = phone_number || null;
         if (profile_photo !== undefined) profileData.profile_photo = profile_photo || null;
-        profileData.updated_at = new Date();
 
-        // Update user dan profile secara paralel
         await Promise.all([
             User.update(userData, { where: { user_id: userId }, transaction }),
             UserProfile.update(profileData, { where: { user_id: userId }, transaction })
         ]);
 
         await transaction.commit();
+        committed = true;
 
-        const updatedUser = await User.findByPk(userId);
+        const updatedUser = await User.findByPk(userId, { attributes: { exclude: ['password_hash'] } });
         const updatedProfile = await UserProfile.findOne({ where: { user_id: userId } });
 
-        return res.status(200).json({
-            status: 'success',
-            statusCode: 200,
-            message: 'User and profile updated successfully',
-            data: {
-                user: {
-                    user_id: updatedUser.user_id,
-                    username: updatedUser.username,
-                    email: updatedUser.email,
-                    nik: updatedUser.nik,
-                    full_name: updatedUser.full_name,
-                    gender: updatedUser.gender,
-                    address: updatedUser.address,
-                    id_card_photo: updatedUser.id_card_photo,
-                    updated_at: updatedUser.updated_at
-                },
-                profile: {
-                    birth_date: updatedProfile.birth_date,
-                    phone_number: updatedProfile.phone_number,
-                    profile_photo: updatedProfile.profile_photo,
-                    updated_at: updatedProfile.updated_at
-                }
-            }
+        if (updatedUser?.updated_at) {
+            updatedUser.dataValues.updated_at = formatToWIB(updatedUser.updated_at);
+        }
+
+        if (updatedProfile?.updated_at) {
+            updatedProfile.dataValues.updated_at = formatToWIB(updatedProfile.updated_at);
+        }
+
+        return sendSuccess(res, 200, 'User and profile updated successfully', {
+            user: updatedUser,
+            profile: updatedProfile
         });
 
     } catch (error) {
-        await transaction.rollback();
+        if (!committed) {
+            await transaction.rollback();
+        }
         console.error('Update user & profile error:', error);
-        return res.status(500).json({
-            status: 'error',
-            statusCode: 500,
-            message: 'An unexpected error occurred during update',
-            errorCode: 'SERVER_ERROR'
-        });
+        return sendError(res, 500, 'An unexpected error occurred during update', 'SERVER_ERROR');
     }
 };
-
-// const updateProfile = async (req, res) => {
-//     try {
-//         const userId = req.user?.user_id;
-//         const { birth_date, profile_photo, phone_number } = req.body;
-
-//         if (!birth_date && !phone_number && !profile_photo) {
-//             return res.status(400).json({
-//                 status: 'error',
-//                 statusCode: 400,
-//                 message: 'At least one field is required',
-//                 errorCode: 'INVALID_INPUT'
-//             });
-//         }
-
-//         const profile = await UserProfile.findOne({ where: { user_id: userId } });
-
-//         if (!profile) {
-//             return res.status(404).json({
-//                 status: 'error',
-//                 statusCode: 404,
-//                 message: 'Profile not found',
-//                 errorCode: 'PROFILE_NOT_FOUND'
-//             });
-//         }
-
-//         const updateData = {};
-//         if (birth_date !== undefined) updateData.birth_date = birth_date || null;
-//         if (phone_number !== undefined) updateData.phone_number = phone_number || null;
-//         if (profile_photo !== undefined) updateData.profile_photo = profile_photo || null;
-
-//         await UserProfile.update(updateData, {
-//             where: { user_id: userId }
-//         });
-
-//         // Fetch updated profile
-//         const updatedProfile = await UserProfile.findOne({ where: { user_id: userId } });
-
-//         // console.log('Profile updated:', JSON.stringify(updatedProfile, null, 2));
-
-//         return res.status(200).json({
-//             status: 'success',
-//             statusCode: 200,
-//             message: 'Profile updated successfully',
-//             data: {
-//                 birth_date: updatedProfile.birth_date,
-//                 phone_number: updatedProfile.phone_number,
-//                 profile_photo: updatedProfile.profile_photo,
-//             }
-//         });
-//     } catch (error) {
-//         console.error('Update profile error:', error);
-//         return res.status(500).json({
-//             status: 'error',
-//             statusCode: 500,
-//             message: 'An unexpected error occurred during update profile',
-//             errorCode: 'SERVER_ERROR'
-//         });
-//     }
-// };
 
 module.exports = {
     signup,
     login,
     getProfile,
-    // updateProfile,
     updateUserData
 };

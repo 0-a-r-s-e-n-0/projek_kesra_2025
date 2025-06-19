@@ -11,10 +11,11 @@ CREATE TABLE admins (
 	gender VARCHAR(20) NOT NULL CHECK (gender IN ('Pria', 'Wanita')),
 	phone_number VARCHAR(20) NOT NULL,
     nip VARCHAR(25) UNIQUE NOT NULL, --nomor induk pegawai
-    positions VARCHAR(100), --jabatan
+    positions VARCHAR(100) NOT NULL, --jabatan
     address TEXT NOT NULL,
 	suspend BOOLEAN DEFAULT FALSE, --digunakan untuk menonaktifkan admin
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE users (
@@ -28,11 +29,11 @@ CREATE TABLE users (
     address VARCHAR(255) NOT NULL,
     id_card_photo TEXT NOT NULL, --foto ktp
     is_verified BOOLEAN DEFAULT FALSE,
-    verified_at TIMESTAMP, --waktu verifikasi oleh admin
+    verified_at TIMESTAMPTZ, --waktu verifikasi oleh admin
     verified_by_admin_id UUID REFERENCES admins(admin_id) ON DELETE SET NULL,
     suspend BOOLEAN DEFAULT FALSE, --digunakan untuk menonaktifkan user
-    register_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    register_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE user_profiles (
@@ -41,16 +42,16 @@ CREATE TABLE user_profiles (
     birth_date DATE,
     phone_number VARCHAR(20),
     profile_photo TEXT,
-    last_login TIMESTAMP,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    last_login TIMESTAMPTZ,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE incoming_mail(
 	mail_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
 	mail_no TEXT NOT NULL,
 	mail_file TEXT NOT NULL,
-	input_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	input_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
 	input_by_admin_id UUID REFERENCES admins(admin_id) ON DELETE SET NULL
 );
 
@@ -58,9 +59,12 @@ CREATE TABLE outgoing_mail(
 	mail_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
 	mail_no TEXT NOT NULL,
 	mail_file TEXT NOT NULL,
-	input_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	input_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
 	input_by_admin_id UUID REFERENCES admins(admin_id) ON DELETE SET NULL
 );
 
 select * from admins;
 select * from users;
+select * from user_profiles;
+select * from outgoing_mail;
+select * from incoming_mail;

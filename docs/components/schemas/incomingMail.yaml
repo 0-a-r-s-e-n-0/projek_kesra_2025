@@ -1,0 +1,17 @@
+IncomingMail:
+      type: object
+      properties:
+        mail_id:
+          type: string
+          format: uuid
+        mail_no:
+          type: string
+        mail_file:
+          type: string
+        input_at:
+          type: string
+          format: date-time
+        input_by_admin_id:
+          type: string
+          format: uuid
+          nullable: true

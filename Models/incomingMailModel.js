@@ -16,10 +16,6 @@ module.exports = (sequelize) => {
             type: DataTypes.TEXT,
             allowNull: false
         },
-        input_at: {
-            type: DataTypes.DATE,
-            defaultValue: DataTypes.NOW
-        },
         input_by_admin_id: {
             type: DataTypes.UUID,
             allowNull: true,
@@ -28,10 +24,13 @@ module.exports = (sequelize) => {
                 key: 'admin_id'
             },
             onDelete: 'SET NULL'
-        },
+        }
     }, {
         tableName: 'incoming_mail',
-        timestamps: false
+        timestamps: true,
+        createdAt: 'input_at',
+        updatedAt: false,
+        underscored: true
     });
 
     return IncomingMail;

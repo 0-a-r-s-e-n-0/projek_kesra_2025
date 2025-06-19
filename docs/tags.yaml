@@ -3,4 +3,7 @@ tags:
     description: User routes (register, login and user profile)
 
   - name: Mail
-    description: Mail routes (register, login and user profile)
+    description: Mail routes (Incoming and Outgoing mail)
+
+  - name: Admin
+    description: Admin routes (Login) 

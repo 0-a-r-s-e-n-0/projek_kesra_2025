@@ -47,7 +47,7 @@ module.exports = (sequelize) => {
         },
         positions: {
             type: DataTypes.STRING(100),
-            allowNull: true
+            allowNull: false
         },
         address: {
             type: DataTypes.TEXT,
@@ -60,10 +60,17 @@ module.exports = (sequelize) => {
         created_at: {
             type: DataTypes.DATE,
             defaultValue: DataTypes.NOW
+        },
+        updated_at: {
+            type: DataTypes.DATE,
+            defaultValue: DataTypes.NOW
         }
+
     }, {
         tableName: 'admins',
-        timestamps: false
+        timestamps: true,
+        underscored: true, //  snake_case 
+        updatedAt: 'updated_at',
     });
 
     return Admin;
