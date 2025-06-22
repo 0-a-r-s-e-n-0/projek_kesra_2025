@@ -14,7 +14,7 @@ const app = express();
 app.use(morgan('dev')); // format 'dev' bagus saat development
 app.use(cors({
     origin: [
-        'http://localhost:8000',
+        'http://localhost:8080',
         //'https://domainmu.com'
     ],
     credentials: true

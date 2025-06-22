@@ -20,6 +20,14 @@ const deleteSingleFile = (file) => {
     });
 };
 
+const removeFileIfExists = (filePath) => {
+    if (fs.existsSync(filePath)) {
+        fs.unlink(filePath, (err) => {
+            if (err) console.error(`Failed to delete ${filePath}:`, err);
+        });
+    }
+};
+
 // Fungsi untuk hapus banyak file dari req.files (hasil dari multer.fields)
 const deleteUploadedFile = (files) => {
     if (!files || typeof files !== 'object') return;
@@ -34,11 +42,15 @@ const deleteUploadedFile = (files) => {
     });
 };
 
+const getUploadedFilePath = (file) => {
+    if (!file || !file.filename || !file.fieldname) return null;
 
-const getUploadedFilePath = (file) => file ? path.join('uploads', file.filename) : null;
+    return path.join('uploads', file.fieldname, file.filename);
+};
 
 module.exports = {
     deleteSingleFile,
     deleteUploadedFile,
-    getUploadedFilePath
+    getUploadedFilePath,
+    removeFileIfExists
 };

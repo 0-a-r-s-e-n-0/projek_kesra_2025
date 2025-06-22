@@ -1,11 +1,8 @@
 const { respondError } = require('../../../helpers/validationHelper');
 
 module.exports = (req, res, next) => {
-    const body = req.body;
-
-    if (!body || typeof body !== 'object' || Object.keys(body).length === 0) {
-        return respondError(res, 400, 'Request body cannot be empty', 'EMPTY_REQUEST_BODY');
-    }
+    const body = req.body || {};
+    const files = req.files || {};
 
     const {
         username,
@@ -14,22 +11,25 @@ module.exports = (req, res, next) => {
         full_name,
         gender,
         address,
-        id_card_photo,
         birth_date,
-        phone_number,
-        profile_photo
+        phone_number
     } = body;
 
+    const {
+        profile_photo,
+        id_card_photo
+    } = files;
+
     const hasAtLeastOneField = [
-        username, email, nik, full_name, gender, address, id_card_photo,
-        birth_date, phone_number, profile_photo
-    ].some(field => field !== undefined);
+        username, email, nik, full_name, gender, address, birth_date, phone_number,
+        profile_photo, id_card_photo
+    ].some(field => field !== undefined && field !== null);
 
     if (!hasAtLeastOneField) {
-        return respondError(res, 400, 'At least one field must be provided for update', 'INVALID_INPUT');
+        return respondError(res, 400, 'At least one field or file must be provided for update', 'EMPTY_UPDATE_DATA');
     }
 
-    // Validasi opsional berdasarkan field yang dikirim:
+    // Validasi opsional
     if (username !== undefined) {
         if (typeof username !== 'string' || username.length < 3 || username.length > 50) {
             return respondError(res, 400, 'Username must be between 3 and 50 characters', 'INVALID_USERNAME');

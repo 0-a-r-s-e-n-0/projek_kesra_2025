@@ -1,0 +1,43 @@
+1. Login Admin dan User - Post
+    
+    http://localhost:8080/api/users/login
+    
+    wajib di isi:
+
+    {
+    "email": "lisxxa@gmail.comaxyl",
+    "password": "arsen889s"
+    }
+
+2. Register User - Post
+
+    http://localhost:8080/api/users/signup
+
+    wajib di isi:
+
+    username
+    email
+    password
+    confirm_password
+    nik
+    full_name
+    gender
+    address
+    id_card
+
+3. Get User Profile - Get
+user harus login dulu baru bisa get user profile yang login
+
+    http://localhost:8080/api/users/profile
+
+4. Get all user information - Get
+Login sebagai admin baru bisa
+
+    http://localhost:8080/api/admin/users
+
+5. Verif user - Patch
+Login sebagai admin
+
+    http://localhost:8080/api/admin/303a12b6-71dc-4a43-aad8-eed971ebbd85/verify
+
+    303a12b6-71dc-4a43-aad8-eed971ebbd85, ini id user

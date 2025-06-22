@@ -15,7 +15,7 @@ const uploadUserFiles = createUploader({
             folderName: 'id_card',
             allowedTypes: ['image/jpeg', 'image/png'],
             maxSizeMB: 5,
-            fieldName: 'id_card_photo'
+            fieldName: 'id_card'
         },
         {
             folderName: 'profile_photo',
@@ -32,7 +32,7 @@ const uploadIdCardOnly = createUploader({
             folderName: 'id_card',
             allowedTypes: ['image/jpeg', 'image/png'],
             maxSizeMB: 5,
-            fieldName: 'id_card_photo'
+            fieldName: 'id_card'
         }
     ]
 });
@@ -48,8 +48,8 @@ router.post('/login', validateLogin, userController.login)
 router.get('/profile', userAuth.userAuth, userController.getProfile);
 router.patch(
     '/profile',
-    uploadUserFiles,
     userAuth.userAuth,
+    uploadUserFiles,
     withFileCleanup(validateUpdateUserData),
     userController.updateUserData
 );

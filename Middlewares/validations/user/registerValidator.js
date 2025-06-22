@@ -15,7 +15,7 @@ module.exports = (req, res, next) => {
     if (!full_name) missingFields.push('full name');
     if (!gender) missingFields.push('gender');
     if (!address) missingFields.push('address');
-    if (!req.files?.id_card_photo?.[0]) missingFields.push('id card photo');
+    if (!req.files?.id_card?.[0]) missingFields.push('id card');
 
     if (missingFields.length > 0)
         return respondError(res, 400, `${missingFields.join(', ')} ${missingFields.length > 1 ? 'are' : 'is'} required`, 'INVALID_INPUT');

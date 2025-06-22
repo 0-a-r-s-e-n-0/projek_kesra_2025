@@ -1,4 +1,5 @@
-const db = require('../models');
+const db = require('../Models');
+const generatePaginatedHelper = require('../helpers/generatePaginate');
 const IncomingMail = db.IncomingMail;
 const OutgoingMail = db.OutgoingMail;
 const Admin = db.Admin;
@@ -78,15 +79,35 @@ const generateMailController = (Model) => ({
 });
 
 const mailController = {
+    // INCOMING MAIL
     ...generateMailController(IncomingMail),
-    getIncomingMails: generateMailController(IncomingMail).getAll,
+    ...generatePaginatedHelper(IncomingMail, {
+        defaultSortBy: 'input_at',
+        allowedSortFields: ['mail_no', 'input_at'],
+        searchableFields: ['mail_no'],
+        customFilterFields: {
+            input_at: (value) => ({
+                input_at: new Date(value)
+            })
+        }
+    }),
     getIncomingMailById: generateMailController(IncomingMail).getById,
     createIncomingMail: generateMailController(IncomingMail).create,
     updateIncomingMail: generateMailController(IncomingMail).update,
     deleteIncomingMail: generateMailController(IncomingMail).delete,
 
+    // OUTGOING MAIL
     ...generateMailController(OutgoingMail),
-    getOutgoingMails: generateMailController(OutgoingMail).getAll,
+    ...generatePaginatedHelper(OutgoingMail, {
+        defaultSortBy: 'input_at',
+        allowedSortFields: ['mail_no', 'input_at'],
+        searchableFields: ['mail_no'],
+        customFilterFields: {
+            input_at: (value) => ({
+                input_at: new Date(value)
+            })
+        }
+    }),
     getOutgoingMailById: generateMailController(OutgoingMail).getById,
     createOutgoingMail: generateMailController(OutgoingMail).create,
     updateOutgoingMail: generateMailController(OutgoingMail).update,

@@ -1,6 +1,7 @@
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const { formatToWIB } = require('../helpers/timeHelper');
 
 // Buat folder jika belum ada
 const ensureDirectoryExistence = (folderPath) => {
@@ -21,8 +22,8 @@ const createUploader = ({ fields }) => {
             cb(null, uploadPath);
         },
         filename: (req, file, cb) => {
-            const name = req.user?.username || 'guest'; // Optional: req.body.username
-            const timestamp = new Date().toISOString().replace(/:/g, '-');
+            const name = req.user?.username || req.body?.username || 'guest';
+            const timestamp = formatToWIB(new Date().toISOString()).replace(/:/g, '-');
             const random = Math.floor(Math.random() * 1e6);
             const ext = path.extname(file.originalname);
             cb(null, `${file.fieldname}_${name}_${timestamp}_${random}${ext}`);

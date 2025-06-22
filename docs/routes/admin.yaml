@@ -1,5 +1,5 @@
 paths:
-  api/admin/login:
+  api/users/login:
     post:
       summary: Admin Login
       description: Login untuk admin
