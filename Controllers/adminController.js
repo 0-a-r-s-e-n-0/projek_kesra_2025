@@ -1,8 +1,5 @@
 const db = require('../Models');
 const { DateTime } = require('luxon');
-const { Op } = require('sequelize');
-// const { generateToken } = require('../helpers/tokenHelper');
-// const { setAuthCookie } = require('../helpers/cookieHelper');
 const { formatToWIB } = require('../helpers/timeHelper');
 const { sendSuccess, sendError } = require('../helpers/responseHelper');
 const generatePaginatedHelper = require('../helpers/generatePaginate');
@@ -11,51 +8,59 @@ const generatePaginatedHelper = require('../helpers/generatePaginate');
 const User = db.User;
 const userProfile = db.UserProfile;
 
-// const login = async (req, res) => {
-//     try {
-//         const { email, password } = req.body;
-
-//         const admin = await Admin.findOne({ where: { email } });
-//         if (!admin || !(await bcrypt.compare(password, admin.password_hash))) {
-//             return sendError(res, 401, 'Invalid email or password', 'INVALID_CREDENTIALS');
-//         }
-
-//         const token = generateToken(admin.admin_id, 'admin');
-//         setAuthCookie(res, token);
-
-//         return sendSuccess(res, 200, 'Admin logged in successfully', {
-//             token,
-//             admin: {
-//                 admin_id: admin.admin_id,
-//                 full_name: admin.full_name,
-//                 email: admin.email
-//             }
-//         });
-
-//     } catch (error) {
-//         console.error('Admin login error:', error);
-//         return sendError(res, 500, 'Login failed due to server error', 'SERVER_ERROR');
-//     }
-// };
-
 const getAllUsers = generatePaginatedHelper(User, {
     include: [
         {
             model: userProfile,
-            as: 'profile'
+            as: 'profile',
+            attributes: ['profile_photo'] // ambil hanya foto
         }
     ],
-    allowedSortFields: ['register_at', 'full_name', 'email', 'updated_at'],
+    allowedSortFields: ['register_at', 'email', 'updated_at'],
     defaultSortBy: 'register_at',
-    searchableFields: ['full_name', 'email'],
-    customFilterBuilder: (query) => {
-        const filters = {};
-        if (query.gender) filters.gender = query.gender;
-        if (query.is_verified !== undefined) filters.is_verified = query.is_verified === 'true';
-        if (query.suspend !== undefined) filters.suspend = query.suspend === 'true';
-        return filters;
-    }
+    searchableFields: [, 'email'],
+    customFilterFields: {
+        gender: (value) => ({ gender: value }),
+        is_verified: (value) => ({ is_verified: value === 'true' }),
+        suspend: (value) => ({ suspend: value === 'true' })
+    },
+    defaultLimit: 10,
+    maxLimit: 50,
+    attributes: ['user_id', 'username', 'email', 'is_verified'] // penting: field ringan!
 }).getAll;
+
+const getUserById = async (req, res) => {
+    try {
+        const { userId } = req.params;
+        const user = await User.findByPk(userId, {
+            attributes: {
+                exclude: ['password_hash'] // jangan kirim password ke frontend
+            },
+            include: [{
+                model: userProfile,
+                as: 'profile',
+                attributes: [
+                    'birth_date',
+                    'phone_number',
+                    'profile_photo',
+                    'last_login',
+                    'created_at',
+                    'updated_at'
+                ]
+            }]
+        });
+
+        if (!user) {
+            return sendError(res, 404, 'User not found', 'USER_NOT_FOUND');
+        }
+
+        return sendSuccess(res, 200, 'User data retrieved successfully', user);
+
+    } catch (err) {
+        console.error('Error fetching user by ID:', err);
+        return sendError(res, 500, 'Server error while retrieving user data', 'SERVER_ERROR');
+    }
+};
 
 const verifyUser = async (req, res, next) => {
     try {
@@ -64,7 +69,7 @@ const verifyUser = async (req, res, next) => {
 
         const user = await User.findByPk(userId);
         if (!user) {
-            return res.status(404).json({ status: 'error', message: 'User not found' });
+            return sendError(res, 404, 'User not found', 'USER_NOT_FOUND');
         }
 
         user.is_verified = true;
@@ -72,13 +77,11 @@ const verifyUser = async (req, res, next) => {
         user.verified_by_admin_id = adminId;
         await user.save();
 
-        res.status(200).json({
-            status: 'success',
-            message: 'User verified successfully',
-            data: user
-        });
+        return sendSuccess(res, 200, 'User verified successfully', user);
+
     } catch (err) {
-        next(err);
+        console.error('Error when verify user:', err);
+        return sendError(res, 500, 'Server error while verify user account', 'SERVER_ERROR');
     }
 };
 
@@ -89,25 +92,23 @@ const toggleUserSuspend = async (req, res, next) => {
 
         const user = await User.findByPk(userId);
         if (!user) {
-            return res.status(404).json({ status: 'error', message: 'User not found' });
+            return sendError(res, 404, 'User not found', 'USER_NOT_FOUND');
         }
 
         user.suspend = suspend;
         await user.save();
 
-        res.status(200).json({
-            status: 'success',
-            message: `User ${suspend ? 'suspended' : 'unsuspended'} successfully`
-        });
+        return sendSuccess(res, 200, `User ${suspend ? 'suspended' : 'unsuspended'} successfully`, user);
+
     } catch (err) {
-        next(err);
+        console.error('Error when toggle suspend to user:', err);
+        return sendError(res, 500, 'Server error while toggle suspend user account', 'SERVER_ERROR');
     }
 };
 
-
 module.exports = {
-    // login,
     getAllUsers,
+    getUserById,
     verifyUser,
     toggleUserSuspend
 };

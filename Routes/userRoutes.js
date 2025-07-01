@@ -20,7 +20,7 @@ const uploadUserFiles = createUploader({
         {
             folderName: 'profile_photo',
             allowedTypes: ['image/jpeg', 'image/png'],
-            maxSizeMB: 3,
+            maxSizeMB: 5,
             fieldName: 'profile_photo'
         }
     ]
@@ -45,10 +45,11 @@ router.post(
     userController.signup
 );
 router.post('/login', validateLogin, userController.login)
-router.get('/profile', userAuth.userAuth, userController.getProfile);
+router.get('/profile', userAuth.userAuth, userAuth.checkSuspendedUser, userController.getProfile);
 router.patch(
     '/profile',
     userAuth.userAuth,
+    userAuth.checkSuspendedUser,
     uploadUserFiles,
     withFileCleanup(validateUpdateUserData),
     userController.updateUserData

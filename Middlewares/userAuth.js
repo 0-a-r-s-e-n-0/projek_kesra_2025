@@ -59,6 +59,18 @@ const saveUser = async (req, res, next) => {
     }
 };
 
+const checkSuspendedUser = (req, res, next) => {
+    if (req.user && req.user.suspend === true) {
+        return res.status(403).json({
+            status: 'error',
+            statusCode: 403,
+            message: 'Account is suspended. You can only view your data.',
+            errorCode: 'USER_SUSPENDED'
+        });
+    }
+    next();
+};
+
 // Middleware to check if user is authenticate or not
 const userAuth = async (req, res, next) => {
     try {
@@ -97,7 +109,7 @@ const userAuth = async (req, res, next) => {
         console.log(`[AUTH] user ${decoded.id} access from IP ${ip} at ${new Date().toISOString()}`);
 
         req.user = {
-            user_id: decoded.id, username: decoded.name, role: decoded.role
+            user_id: decoded.id, username: decoded.name, role: decoded.role, suspend: user.suspend
         };
 
         next();
@@ -198,4 +210,4 @@ const adminAuth = async (req, res, next) => {
     }
 };
 
-module.exports = { userAuth, saveUser, adminAuth };
+module.exports = { userAuth, saveUser, adminAuth, checkSuspendedUser };

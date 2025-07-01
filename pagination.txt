@@ -1,0 +1,32 @@
+Sebagai Contoh kita pakai endpoint MAIL
+
+query yang tersedia secara lengkap:
+    http://localhost:8080/api/mails/incoming?search=SK&input_at=2025-06-21&sort_by=mail_no&sort=asc&page=1&limit=10
+
+    yang tersedia:
+        -sort - digunakan untuk sort secara ASC/DESC
+        -sort by field - sort bedasarkan field yang ditentukan
+        -filter - filter bedasarkan field yang ditentukan
+        -search - cari item bedasarkan field yang telah ditentukan
+        -limit - limit item per page
+        -page - untuk berpindah ke page berikutnya/sebelumnya
+    
+    - get all dengan pagination
+        http://localhost:8080/api/mails/incoming?page=1&limit=10
+    get all data dengan pagination dimana limit item 10 per halaman
+
+    - get all dengan pagination + sort
+        http://localhost:8080/api/mails/incoming?page=1&limit=10&sort=asc
+    sort bisa ASC atau DESC
+    
+    - search
+        http://localhost:8080/api/mails/incoming?search=JTVGF3ATUY
+    ini search=JTVGF3ATUY bedasarkan mail_no
+
+    - get all dengan pagination + filter
+        http://localhost:8080/api/mails/incoming?input_at=2025-06-18T05:08:41.624Z
+    disini filternya bedasarkan field input_at=2025-06-18T05:08:41.624Z
+
+    - get all dengan pagination + sort bedasarkan field
+        http://localhost:8080/api/mails/incoming?sort_by=mail_no
+    disini pagination dan sort bedasarkan field mail_no

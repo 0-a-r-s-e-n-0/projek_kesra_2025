@@ -9,7 +9,8 @@ const generatePaginatedHelper = (Model, options = {}) => {
         include = [],
         customFilterFields = {},
         defaultLimit = 10,
-        maxLimit = 100
+        maxLimit = 100,
+        attributes = null
     } = options;
 
     return {
@@ -26,14 +27,12 @@ const generatePaginatedHelper = (Model, options = {}) => {
 
                 const where = {};
 
-                // Search support
                 if (search && searchableFields.length) {
                     where[Op.or] = searchableFields.map(field => ({
                         [field]: { [Op.iLike]: `%${search}%` }
                     }));
                 }
 
-                // Filter support
                 for (const key in filters) {
                     if (filters[key] !== undefined) {
                         if (customFilterFields[key]) {
@@ -46,7 +45,6 @@ const generatePaginatedHelper = (Model, options = {}) => {
                     }
                 }
 
-                // Pagination & sorting
                 const offset = (parseInt(page) - 1) * parseInt(limit);
                 const safeLimit = Math.min(parseInt(limit), maxLimit);
                 const orderField = allowedSortFields.includes(sort_by) ? sort_by : defaultSortBy;
@@ -57,7 +55,8 @@ const generatePaginatedHelper = (Model, options = {}) => {
                     include,
                     order: [[orderField, orderDirection]],
                     limit: safeLimit,
-                    offset
+                    offset,
+                    attributes // 👈 apply attributes ringan
                 });
 
                 return PaginationSendSuccess(res, 200, `${Model.name} data fetched successfully`, {
@@ -82,5 +81,6 @@ const generatePaginatedHelper = (Model, options = {}) => {
         }
     };
 };
+
 
 module.exports = generatePaginatedHelper;

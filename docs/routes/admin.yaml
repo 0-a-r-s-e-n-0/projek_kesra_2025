@@ -1,5 +1,5 @@
 paths:
-  api/users/login:
+  api/admin/login:
     post:
       summary: Admin Login
       description: Login untuk admin
@@ -36,3 +36,161 @@ paths:
             application/json:
               schema:
                 $ref: '/api/components/schemas/responses.yaml#/ServerErrorResponse'
+
+  /api/admin/users:
+      get:
+        summary: Get all users (admin only)
+        description: Mengambil daftar seluruh user dengan pagination, hanya bisa diakses oleh admin.
+        tags:
+          - Admin
+        parameters:
+          - name: page
+            in: query
+            required: false
+            schema:
+              type: integer
+              default: 1
+          - name: limit
+            in: query
+            required: false
+            schema:
+              type: integer
+              default: 10
+          - name: sort_by
+            in: query
+            required: false
+            schema:
+              type: string
+              default: register_at
+          - name: sort
+            in: query
+            required: false
+            schema:
+              type: string
+              enum: [ASC, DESC]
+              default: DESC
+        responses:
+          '200':
+            description: List of users fetched successfully
+            content:
+              application/json:
+                schema:
+                  $ref: '/api/components/schemas/responses.yaml#/GetAllUsersPaginatedResponse'
+          '401':
+            description: Token missing or invalid
+            content:
+              application/json:
+                schema:
+                  $ref: '/api/components/schemas/responses.yaml#/AuthTokenMissingResponse'
+          '403':
+            description: Access denied
+            content:
+              application/json:
+                schema:
+                  $ref: '/api/components/schemas/responses.yaml#/AccessDeniedResponse'
+          '500':
+            description: Internal server error
+            content:
+              application/json:
+                schema:
+                  $ref: '/api/components/schemas/responses.yaml#/ServerErrorResponse'
+
+  /api/admin/{user_id}/detail:
+    get:
+      summary: Get user detail by ID (admin only)
+      description: Mengambil detail informasi user berdasarkan user_id. Hanya dapat diakses oleh admin.
+      tags:
+        - Admin
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: User profile retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '/api/components/schemas/responses.yaml#/GetUserByIdSuccessResponse'
+        '401':
+          description: Token missing or invalid
+          content:
+            application/json:
+              schema:
+                $ref: '/api/components/schemas/responses.yaml#/AuthTokenMissingResponse'
+        '403':
+          description: Access denied
+          content:
+            application/json:
+              schema:
+                $ref: '/api/components/schemas/responses.yaml#/AccessDeniedResponse'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '/api/components/schemas/responses.yaml#/UserNotFoundResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '/api/components/schemas/responses.yaml#/ServerErrorResponse'
+  
+  /api/admin/users/{userId}/suspend:
+    patch:
+      tags:
+        - Admin
+      summary: Toggle suspend user account
+      description: Suspend atau aktifkan kembali akun user.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: string
+          description: UUID dari user yang akan di-suspend atau di-unsuspend
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - suspend
+              properties:
+                suspend:
+                  type: boolean
+                  description: Nilai `true` untuk suspend dan `false` untuk unsuspend
+              example:
+                suspend: true
+      responses:
+        '200':
+          description: User suspend status updated
+          content:
+            application/json:
+              schema:
+                $ref: '../components/schemas/responses.yaml#/SuspendSuccessResponse'
+        '401':
+          description: Unauthorized (no token or invalid)
+          content:
+            application/json:
+              schema:
+                $ref: '../components/schemas/responses.yaml#/UnauthorizedResponse'
+        '403':
+          description: Access denied
+          content:
+            application/json:
+              schema:
+                $ref: '../components/schemas/responses.yaml#/AccessDeniedResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '../components/schemas/responses.yaml#/ServerErrorResponse'

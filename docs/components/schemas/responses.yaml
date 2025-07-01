@@ -410,7 +410,10 @@ AdminLoginSuccessResponse:
         token:
           type: string
           description: JWT token for authentication
-          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZiZmQzZTNmLTdkMTAtNDhjZC1hZGFjLTZmMTk4NDU5YTgxMSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc1MDMyNTEzOCwiZXhwIjoxNzUwNDExNTM4fQ.KwwKn5hY55t4iIkPeP-OjpVj8VXZlzgJ6jT9peCOkrA
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        role:
+          type: string
+          example: admin
         admin:
           type: object
           properties:
@@ -425,3 +428,260 @@ AdminLoginSuccessResponse:
               type: string
               format: email
               example: admin122@example.com
+
+AuthTokenMissingResponse:
+  type: object
+  properties:
+    status:
+      type: string
+      example: error
+    statusCode:
+      type: integer
+      example: 401
+    message:
+      type: string
+      example: No token provided
+    errorCode:
+      type: string
+      example: AUTH_TOKEN_MISSING
+
+AccessDeniedResponse:
+  type: object
+  properties:
+    status:
+      type: string
+      example: error
+    statusCode:
+      type: integer
+      example: 403
+    message:
+      type: string
+      example: Access denied not an admin
+    errorCode:
+      type: string
+      example: ACCESS_DENIED
+
+GetAllUsersPaginatedResponse:
+  type: object
+  properties:
+    status:
+      type: string
+      example: success
+    statusCode:
+      type: integer
+      example: 200
+    message:
+      type: string
+      example: User data fetched successfully
+    currentPage:
+      type: integer
+      example: 1
+    totalPages:
+      type: integer
+      example: 4
+    totalItems:
+      type: integer
+      example: 35
+    itemsPerPage:
+      type: integer
+      example: 10
+    sort_by:
+      type: string
+      example: register_at
+    sort:
+      type: string
+      enum: [ASC, DESC]
+      example: DESC
+    filters:
+      type: object
+      example: {}
+    data:
+      type: array
+      items:
+        type: object
+        properties:
+          user_id:
+            type: string
+            format: uuid
+            example: 48c84331-62fc-4f60-8209-5a45622dc8bd
+          username:
+            type: string
+            example: lixiasaxyja
+          email:
+            type: string
+            format: email
+            example: lisxxa@gmail.comaxyla
+          is_verified:
+            type: boolean
+            example: false
+          profile:
+            type: object
+            properties:
+              profile_photo:
+                type: string
+                nullable: true
+                example: uploads\\profile_photo\\profile_photo_jlwerxy_2025-06-22T14-13-03.159+07-00_230135.png
+
+GetUserByIdSuccessResponse:
+  type: object
+  properties:
+    status:
+      type: string
+      example: success
+    statusCode:
+      type: integer
+      example: 200
+    message:
+      type: string
+      example: User data retrieved successfully
+    data:
+      type: object
+      properties:
+        user_id:
+          type: string
+          format: uuid
+          example: 48c84331-62fc-4f60-8209-5a45622dc8bd
+        username:
+          type: string
+          example: lixiasaxyja
+        email:
+          type: string
+          format: email
+          example: lisxxa@gmail.comaxyla
+        nik:
+          type: string
+          example: "1207223467862991200010939"
+        full_name:
+          type: string
+          example: arsen
+        gender:
+          type: string
+          example: Pria
+        address:
+          type: string
+          example: kajaf
+        id_card_photo:
+          type: string
+          example: uploads\\id_card\\id_card_lixiasaxyja_2025-06-22T14-32-52.054+07-00_90818.png
+        is_verified:
+          type: boolean
+          example: false
+        verified_at:
+          type: string
+          format: date-time
+          nullable: true
+          example: null
+        verified_by_admin_id:
+          type: string
+          format: uuid
+          nullable: true
+          example: null
+        suspend:
+          type: boolean
+          example: false
+        register_at:
+          type: string
+          format: date-time
+          example: "2025-06-22T07:32:52.244Z"
+        updated_at:
+          type: string
+          format: date-time
+          example: "2025-06-22T07:32:52.244Z"
+        profile:
+          type: object
+          properties:
+            birth_date:
+              type: string
+              format: date
+              nullable: true
+              example: null
+            phone_number:
+              type: string
+              nullable: true
+              example: null
+            profile_photo:
+              type: string
+              nullable: true
+              example: null
+            last_login:
+              type: string
+              format: date-time
+              nullable: true
+              example: null
+            created_at:
+              type: string
+              format: date-time
+              example: "2025-06-22T07:32:52.256Z"
+            updated_at:
+              type: string
+              format: date-time
+              example: "2025-06-22T07:32:52.256Z"
+
+SuspendSuccessResponse:
+  type: object
+  properties:
+    status:
+      type: string
+      example: success
+    statusCode:
+      type: integer
+      example: 200
+    message:
+      type: string
+      example: User suspended successfully
+    data:
+      type: object
+      properties:
+        user_id:
+          type: string
+          format: uuid
+        username:
+          type: string
+        email:
+          type: string
+        password_hash:
+          type: string
+        nik:
+          type: string
+        full_name:
+          type: string
+        gender:
+          type: string
+        address:
+          type: string
+        id_card_photo:
+          type: string
+        is_verified:
+          type: boolean
+        verified_at:
+          type: string
+          format: date-time
+          nullable: true
+        verified_by_admin_id:
+          type: string
+          format: uuid
+          nullable: true
+        suspend:
+          type: boolean
+        register_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+UserSuspendedErrorResponse:
+  type: object
+  properties:
+    status:
+      type: string
+      example: error
+    statusCode:
+      type: integer
+      example: 403
+    message:
+      type: string
+      example: Account is suspended. You can only view your data.
+    errorCode:
+      type: string
+      example: USER_SUSPENDED
