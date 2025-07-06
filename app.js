@@ -6,6 +6,8 @@ const rateLimit = require('express-rate-limit');
 const userRoutes = require('./Routes/userRoutes');
 const mailRoutes = require('./Routes/mailRoutes');
 const adminRoutes = require('./Routes/adminRoutes');
+const addressRoutes = require('./Routes/addressRoutes');
+const proposalRoutes = require('./Routes/proposalRoutes');
 const { swaggerUi, swaggerSpec } = require('./docs/swagger');
 
 const app = express();
@@ -44,6 +46,8 @@ app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use('/api/users', userRoutes);
 app.use('/api/mails', mailRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/address', addressRoutes);
+app.use('/api/proposal', proposalRoutes);
 
 // 404 handler
 app.use((req, res) => {
