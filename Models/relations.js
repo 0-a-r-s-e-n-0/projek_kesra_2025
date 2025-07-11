@@ -17,7 +17,7 @@ module.exports = (db) => {
     db.Admin.hasMany(db.IncomingMail, { foreignKey: 'input_by_admin_id', as: 'incomingMails' });
     db.Admin.hasMany(db.OutgoingMail, { foreignKey: 'input_by_admin_id', as: 'outgoingMails' });
 
-    /* 5. Proposal ↔ Tipe / Kabupaten / User */
+    /* 5. Proposal ↔ Tipe / Kabupaten / User / admin */
     db.Proposal.belongsTo(db.ProposalType, { foreignKey: 'type_id', as: 'type' });
     db.ProposalType.hasMany(db.Proposal, { foreignKey: 'type_id', as: 'proposals' });
 
@@ -25,6 +25,12 @@ module.exports = (db) => {
 
     db.Proposal.belongsTo(db.User, { foreignKey: 'input_by', as: 'inputBy' });
     db.User.hasMany(db.Proposal, { foreignKey: 'input_by', as: 'inputtedProposals' });
+
+    db.Proposal.belongsTo(db.Admin, { foreignKey: 'input_by_admin', as: 'inputByAdmin' });
+    db.User.hasMany(db.Proposal, { foreignKey: 'input_by_admin', as: 'adminInputtedProposals' });
+
+    db.Proposal.belongsTo(db.ProposalProgress, { foreignKey: 'progress', as: 'proposalProgress' });
+    db.ProposalProgress.hasMany(db.Proposal, { foreignKey: 'progress', as: 'proposalsProgress' });
 
     /* 6. HibahDetail & BeasiswaDetail */
     db.Proposal.hasOne(db.HibahDetail, { foreignKey: 'proposal_id', as: 'hibah_detail', onDelete: 'CASCADE' });

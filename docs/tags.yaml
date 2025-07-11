@@ -1,6 +1,6 @@
 tags:
   - name: User
-    description: User routes (register, login and user profile)
+    description: User routes (Register, login and user profile)
     
   - name: Admin
-    description: Admin routes (Login) 
+    description: Admin routes (Login, manage all data) 

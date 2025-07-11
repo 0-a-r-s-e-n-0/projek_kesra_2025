@@ -1,0 +1,13 @@
+Regency:
+  type: object
+  properties:
+    regencies_id:
+      type: integer
+    province_id:
+      type: integer
+    named:
+      type: string
+      maxLength: 100
+    type:
+      type: string
+      enum: ['Kabupaten', 'Kota']

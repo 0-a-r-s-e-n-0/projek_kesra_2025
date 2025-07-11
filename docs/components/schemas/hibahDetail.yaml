@@ -1,0 +1,26 @@
+HibahDetail:
+  type: object
+  properties:
+    proposal_id:
+      type: string
+      format: uuid
+    sub_id:
+      type: integer
+      description: ID sub-kategori hibah (FK ke hibah_sub_categories)
+    nomor_sekda:
+      type: string
+      maxLength: 50
+    tgl_nomor_sekda:
+      type: string
+      format: date
+    nomor_gubernur:
+      type: string
+      maxLength: 50
+    tgl_nomor_gubernur:
+      type: string
+      format: date
+    nama_pengurus:
+      type: string
+    nominal_anggaran:
+      type: number
+      format: float

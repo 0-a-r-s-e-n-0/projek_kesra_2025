@@ -685,3 +685,17 @@ UserSuspendedErrorResponse:
     errorCode:
       type: string
       example: USER_SUSPENDED
+
+UserVerifiedResponse:
+  type: object
+  properties:
+    status:
+      type: string
+      example: success
+    statusCode:
+      type: integer
+      example: 200
+    message:
+      type: string
+      example: User verified successfully     
+      

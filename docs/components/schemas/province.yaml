@@ -1,0 +1,8 @@
+Province:
+  type: object
+  properties:
+    provinces_id:
+      type: integer
+    named:
+      type: string
+      maxLength: 100

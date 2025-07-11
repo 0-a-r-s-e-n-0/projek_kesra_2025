@@ -1,0 +1,33 @@
+Proposal:
+  type: object
+  properties:
+    proposal_id:
+      type: string
+      format: uuid
+    type_id:
+      type: integer
+      description: ID dari jenis proposal (FK ke proposal_types)
+    regencies_id:
+      type: integer
+      description: ID kabupaten/kota (FK ke regencies)
+    address:
+      type: string
+    surat_from:
+      type: string
+    nomor_surat:
+      type: string
+      maxLength: 100
+    tanggal_surat:
+      type: string
+      format: date
+    perihal:
+      type: string
+    input_by:
+      type: string
+      format: uuid
+    created_at:
+      type: string
+      format: date-time
+    updated_at:
+      type: string
+      format: date-time

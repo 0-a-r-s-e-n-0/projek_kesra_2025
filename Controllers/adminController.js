@@ -26,7 +26,7 @@ const getAllUsers = generatePaginatedHelper(User, {
     },
     defaultLimit: 10,
     maxLimit: 50,
-    attributes: ['user_id', 'username', 'email', 'is_verified'] // penting: field ringan!
+    attributes: ['user_id', 'username', 'email', 'is_verified', 'nik', 'id_card_photo', 'gender', 'address'] // penting: field ringan!
 }).getAll;
 
 const getUserById = async (req, res) => {
@@ -77,7 +77,7 @@ const verifyUser = async (req, res, next) => {
         user.verified_by_admin_id = adminId;
         await user.save();
 
-        return sendSuccess(res, 200, 'User verified successfully', user);
+        return sendSuccess(res, 200, 'User verified successfully',);
 
     } catch (err) {
         console.error('Error when verify user:', err);

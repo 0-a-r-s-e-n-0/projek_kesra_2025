@@ -1,0 +1,8 @@
+AcademicLevel:
+  type: object
+  properties:
+    lev_id:
+      type: integer
+    description:
+      type: string
+      maxLength: 50

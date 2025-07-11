@@ -1,0 +1,20 @@
+Attachment:
+  type: object
+  properties:
+    attach_id:
+      type: integer
+    proposal_id:
+      type: string
+      format: uuid
+    kind:
+      type: string
+      enum: ['surat_permohonan', 'rab', 'permohonan_beasiswa']
+    file_name:
+      type: string
+    file_path:
+      type: string
+    file_size:
+      type: integer
+    uploaded_at:
+      type: string
+      format: date-time

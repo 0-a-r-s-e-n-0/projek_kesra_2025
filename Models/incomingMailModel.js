@@ -17,7 +17,8 @@ module.exports = (sequelize) => {
             tableName: 'incoming_mail',
             underscored: true,
             freezeTableName: true,
-            timestamps: false,
+            timestamps: true,
+            createdAt: 'input_at',
         }
     );
 

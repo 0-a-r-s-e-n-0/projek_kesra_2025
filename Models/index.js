@@ -6,6 +6,7 @@ db.Sequelize = Sequelize;
 db.sequelize = sequelize;
 
 // Load models
+db.SuperAdmin = require('./superAdmin')(sequelize, DataTypes);
 db.Admin = require('./adminModel')(sequelize, DataTypes);
 db.User = require('./userModel')(sequelize, DataTypes);
 db.UserProfile = require('./userProfileModel')(sequelize, DataTypes);
@@ -20,6 +21,7 @@ db.Attachment = require('./lampiranModel')(sequelize, DataTypes);
 db.Proposal = require('./proposalModel')(sequelize, DataTypes);
 db.ProposalType = require('./proposalTypeModel')(sequelize, DataTypes);
 db.AcademicLevel = require('./academikLevelModel')(sequelize, DataTypes);
+db.ProposalProgress = require('./proposalProgressModel')(sequelize, DataTypes);
 
 // Hubungkan relasi setelah model dimuat
 require('./relations')(db);

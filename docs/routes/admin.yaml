@@ -194,3 +194,48 @@ paths:
             application/json:
               schema:
                 $ref: '../components/schemas/responses.yaml#/ServerErrorResponse'
+
+  /api/admin/users/{userId}/verify:
+    patch:
+      tags:
+        - Admin
+      summary: Verify user account
+      description: Verifikasi akun user yang telah mendaftar.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: UUID dari user yang akan diverifikasi
+      requestBody:
+        description: Tidak ada body karena verifikasi dilakukan dari parameter URL
+        content: {}
+      responses:
+        '200':
+          description: User verified successfully
+          content:
+            application/json:
+              schema:
+                $ref: '../components/schemas/responses.yaml#/UserVerifiedResponse'
+        '401':
+          description: Unauthorized (no token or invalid)
+          content:
+            application/json:
+              schema:
+                $ref: '../components/schemas/responses.yaml#/UnauthorizedResponse'
+        '403':
+          description: Access denied
+          content:
+            application/json:
+              schema:
+                $ref: '../components/schemas/responses.yaml#/AccessDeniedResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '../components/schemas/responses.yaml#/ServerErrorResponse'              

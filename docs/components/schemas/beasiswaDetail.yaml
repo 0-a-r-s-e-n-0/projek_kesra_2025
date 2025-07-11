@@ -1,0 +1,13 @@
+BeasiswaDetail:
+  type: object
+  properties:
+    proposal_id:
+      type: string
+      format: uuid
+    univ_name:
+      type: string
+    academic_level:
+      type: integer
+      description: FK ke academic_levels
+    scan_permohonan_path:
+      type: string

@@ -1,0 +1,47 @@
+EmailConflictResponse:
+  type: object
+  properties:
+    status:
+      type: string
+      example: error
+    statusCode:
+      type: integer
+      example: 409
+    message:
+      type: string
+      example: Email already taken
+    errorCode:
+      type: string
+      example: CONFLICT_EMAIL
+
+NikConflictResponse:
+  type: object
+  properties:
+    status:
+      type: string
+      example: error
+    statusCode:
+      type: integer
+      example: 409
+    message:
+      type: string
+      example: NIK already taken
+    errorCode:
+      type: string
+      example: CONFLICT_NIK
+
+UsernameConflictResponse:
+  type: object
+  properties:
+    status:
+      type: string
+      example: error
+    statusCode:
+      type: integer
+      example: 409
+    message:
+      type: string
+      example: Username already taken
+    errorCode:
+      type: string
+      example: CONFLICT_USERNAME

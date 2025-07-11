@@ -19,7 +19,7 @@ const generatePaginatedHelper = (Model, options = {}) => {
                 const {
                     search,
                     sort_by = defaultSortBy,
-                    sort = 'desc',
+                    sort = 'asc',
                     page = 1,
                     limit = defaultLimit,
                     ...filters

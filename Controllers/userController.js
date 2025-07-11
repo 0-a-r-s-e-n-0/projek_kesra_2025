@@ -1,7 +1,7 @@
 const bcrypt = require("bcrypt");
 const db = require("../Models");
 const { generateToken } = require('../helpers/tokenHelper');
-const { setAuthCookie } = require('../helpers/cookieHelper');
+const { setAuthCookie, clearAuthCookie } = require('../helpers/cookieHelper');
 const { getUploadedFilePath, deleteUploadedFile, removeFileIfExists } = require('../helpers/fileHelper');
 const { sendSuccess, sendError } = require('../helpers/responseHelper');
 const { formatToWIB } = require('../helpers/timeHelper');
@@ -11,6 +11,7 @@ require('dotenv').config();
 
 const User = db.User;
 const Admin = db.Admin;
+const SuperAdmin = db.SuperAdmin;
 const UserProfile = db.UserProfile;
 
 const signup = async (req, res) => {
@@ -54,63 +55,131 @@ const login = async (req, res) => {
     try {
         const { email, password } = req.body;
 
-        let account = await Admin.findOne({ where: { email } });
-        let role = 'admin';
+        let account = await SuperAdmin.findOne({ where: { email } });
+        let role = "super_admin";
 
         if (!account) {
+            account = await Admin.findOne({ where: { email } });
+            role = "admin";
+        }
+        if (!account) {
             account = await User.findOne({ where: { email } });
-            role = 'user';
+            role = "user";
         }
 
         if (!account || !(await bcrypt.compare(password, account.password_hash))) {
-            return sendError(res, 401, 'Invalid email or password', 'INVALID_CREDENTIALS');
+            return sendError(res, 401, "Invalid email or password", "INVALID_CREDENTIALS");
         }
 
-        // Jika user, cek apakah sudah diverifikasi
-        if (role === 'user' && !account.is_verified) {
-            return sendError(res, 403, 'Your account has not been verified by an admin yet', 'USER_NOT_VERIFIED');
+        // verifikasi status
+        if (role === "user" && !account.is_verified) {
+            return sendError(res, 403, "Your account has not been verified by an admin yet", "USER_NOT_VERIFIED");
+        }
+        if ((role === "admin") && account.suspend) {
+            return sendError(res, 403, "Account is suspended", "ACCOUNT_SUSPENDED");
         }
 
-        const idField = role === 'admin' ? 'admin_id' : 'user_id';
+        // id field mapping
+        const idField = role === "user"
+            ? "user_id"
+            : role === "admin"
+                ? "admin_id"
+                : "super_admin_id";
+
         const token = generateToken(account[idField], role, account.username);
         setAuthCookie(res, token);
 
-
-        if (role === 'user') {
+        // update last_login untuk user
+        if (role === "user") {
             await UserProfile.update(
                 { last_login: new Date() },
                 { where: { user_id: account[idField] } }
             );
         }
 
-        return sendSuccess(res, 200, `${role === 'admin' ? 'Admin' : 'User'} logged in successfully`, {
+        /* ──────────────── bentuk payload spesifik per role ──────────────── */
+        let payload;
+        if (role === "user") {
+            payload = {
+                user_id: account.user_id,
+                username: account.username,
+                email: account.email,
+                nik: account.nik,
+                full_name: account.full_name,
+                gender: account.gender,
+                address: account.address,
+                id_card_photo: account.id_card_photo,
+                register_at: formatToWIB(account.register_at),
+                is_verified: account.is_verified,
+                verified_at: formatToWIB(account.verified_at),
+                verified_by_admin_id: account.verified_by_admin_id
+            };
+        } else if (role === "admin") {
+            payload = {
+                admin_id: account.admin_id,
+                username: account.username,
+                email: account.email,
+                full_name: account.full_name,
+                role: account.role
+            };
+        } else { // super_admin
+            payload = {
+                super_admin_id: account.super_admin_id,
+                username: account.username,
+                email: account.email,
+                full_name: account.full_name,
+                role: account.role
+            };
+        }
+
+        const roleName = role === "user"
+            ? "User"
+            : role === "admin"
+                ? "Admin"
+                : "Super admin";
+
+        return sendSuccess(res, 200, `${roleName} logged in successfully`, {
             token,
             role,
-            [role]: role === 'admin'
-                ? {
-                    admin_id: account.admin_id,
-                    full_name: account.full_name,
-                    email: account.email
-                }
-                : {
-                    user_id: account.user_id,
-                    username: account.username,
-                    email: account.email,
-                    nik: account.nik,
-                    full_name: account.full_name,
-                    gender: account.gender,
-                    address: account.address,
-                    id_card_photo: account.id_card_photo,
-                    register_at: formatToWIB(account.register_at),
-                    is_verified: account.is_verified,
-                    verified_at: formatToWIB(account.verified_at),
-                    verified_by_admin_id: account.verified_by_admin_id,
-                }
+            [role]: payload
         });
 
-    } catch (error) {
-        console.error('Login error:', error);
-        return sendError(res, 500, 'An unexpected error occurred during login', 'SERVER_ERROR');
+    } catch (err) {
+        console.error("Login error:", err);
+        return sendError(res, 500, "An unexpected error occurred during login", "SERVER_ERROR");
+    }
+};
+
+
+/**
+ * Universal logout – works for user, admin, super_admin
+ * Expect middleware that injects req.user OR req.admin if token valid.
+ */
+const logout = (req, res) => {
+    try {
+        // siapa yg login?
+        let role = null;
+        if (req.admin) role = req.admin.role;   // "admin" | "super_admin"
+        else if (req.user) role = 'user';
+
+        // kalau tidak ada sesi ter‑autentikasi
+        if (!role) {
+            return sendError(res, 401, 'No active session', 'UNAUTHORIZED');
+        }
+
+        // hapus cookie JWT
+        clearAuthCookie(res);
+
+        return sendSuccess(
+            res,
+            200,
+            `${role === 'user' ? 'User'
+                : role === 'super_admin' ? 'Super admin'
+                    : 'Admin'} logged out successfully`
+        );
+    } catch (err) {
+        console.error('Universal logout error:', err);
+        return sendError(res, 500, 'Server error during logout', 'SERVER_ERROR');
     }
 };
 
@@ -298,6 +367,7 @@ const updateUserData = async (req, res) => {
 module.exports = {
     signup,
     login,
+    logout,
     getProfile,
     updateUserData
 };

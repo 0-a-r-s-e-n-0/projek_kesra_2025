@@ -1,0 +1,143 @@
+InvalidInputResponse:
+  type: object
+  properties:
+    status:
+      type: string
+      example: error
+    statusCode:
+      type: integer
+      example: 400
+    message:
+      type: string
+      example: "full name is required"
+    errorCode:
+      type: string
+      example: INVALID_INPUT
+
+InvalidUsernameResponse:
+  type: object
+  properties:
+    status:
+      type: string
+      example: error
+    statusCode:
+      type: integer
+      example: 400
+    message:
+      type: string
+      example: Username must be between 3 and 50 characters
+    errorCode:
+      type: string
+      example: INVALID_USERNAME
+
+InvalidEmailResponse:
+  type: object
+  properties:
+    status:
+      type: string
+      example: error
+    statusCode:
+      type: integer
+      example: 400
+    message:
+      type: string
+      example: Invalid email format
+    errorCode:
+      type: string
+      example: INVALID_EMAIL
+
+PasswordMismatchResponse:
+  type: object
+  properties:
+    status:
+      type: string
+      example: error
+    statusCode:
+      type: integer
+      example: 400
+    message:
+      type: string
+      example: Password and confirm_password do not match
+    errorCode:
+      type: string
+      example: PASSWORD_MISMATCH
+
+PasswordTooShortResponse:
+  type: object
+  properties:
+    status:
+      type: string
+      example: error
+    statusCode:
+      type: integer
+      example: 400
+    message:
+      type: string
+      example: Password must be at least 6 characters
+    errorCode:
+      type: string
+      example: PASSWORD_TOO_SHORT
+
+InvalidNikResponse:
+  type: object
+  properties:
+    status:
+      type: string
+      example: error
+    statusCode:
+      type: integer
+      example: 400
+    message:
+      type: string
+      example: NIK must be between 16 and 35 digits and contain only numbers
+    errorCode:
+      type: string
+      example: INVALID_NIK
+
+InvalidFullNameResponse:
+  type: object
+  properties:
+    status:
+      type: string
+      example: error
+    statusCode:
+      type: integer
+      example: 400
+    message:
+      type: string
+      example: Full name must be at least 3 characters
+    errorCode:
+      type: string
+      example: INVALID_FULL_NAME
+
+InvalidGenderResponse:
+  type: object
+  properties:
+    status:
+      type: string
+      example: error
+    statusCode:
+      type: integer
+      example: 400
+    message:
+      type: string
+      example: Gender must be either "Pria" or "Wanita"
+    errorCode:
+      type: string
+      example: INVALID_GENDER
+
+AddressTooShortResponse:
+  type: object
+  properties:
+    status:
+      type: string
+      example: error
+    statusCode:
+      type: integer
+      example: 400
+    message:
+      type: string
+      example: Address must be at least 5 characters
+    errorCode:
+      type: string
+      example: ADDRESS_TOO_SHORT

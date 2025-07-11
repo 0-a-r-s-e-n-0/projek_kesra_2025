@@ -14,12 +14,6 @@ const fileScan = createUploader({
             maxSizeMB: 5,
             fieldName: 'scan_surat_permohonan'
         },
-        {
-            folderName: 'scan_rab',
-            allowedTypes: ['application/pdf', 'image/jpeg', 'image/png'],
-            maxSizeMB: 5,
-            fieldName: 'scan_rab'
-        }
     ]
 });
 
@@ -34,10 +28,19 @@ const permohonanScan = createUploader({
     ]
 });
 
-router.post('/add/hibah', userAuth.userAuth, userAuth.checkSuspendedUser, fileScan, withFileCleanup(validateHibahProposal), proposalController.createHibahProposal);
-router.post('/add/beasiswa', userAuth.userAuth, userAuth.checkSuspendedUser, permohonanScan, withFileCleanup(validateBeasiswaProposal), proposalController.createBeasiswaProposal);
-router.get('/list/proposal', userAuth.userAuth, userAuth.checkSuspendedUser, proposalController.listMyProposals);
-router.get('/:id/get/proposal', userAuth.userAuth, userAuth.checkSuspendedUser, proposalController.getMyProposalDetail);
-router.delete('/:id/delete/proposal', userAuth.userAuth, userAuth.checkSuspendedUser, proposalController.deleteMyProposal); // opsional
+//user
+router.post('/add/hibah', userAuth.allUserAuth, fileScan, withFileCleanup(validateHibahProposal), proposalController.createHibahProposal);
+router.post('/add/beasiswa', userAuth.allUserAuth, permohonanScan, withFileCleanup(validateBeasiswaProposal), proposalController.createBeasiswaProposal);
+router.get('/list', userAuth.userAuth, proposalController.listMyProposals);
+router.get('/:id/get', userAuth.userAuth, proposalController.getMyProposalDetail);
+router.delete('/:id/delete', userAuth.userAuth, proposalController.deleteMyProposal); // opsional
+
+//admin/super
+
+//kurang 1 get detail
+router.get('/list/admin', userAuth.adminAuth, proposalController.getAllProposal);
+router.delete('/:id/delete/admin', userAuth.adminAuth, proposalController.adminDeleteProposal);
+router.patch('/:id/update/beasiswa/admin', userAuth.adminAuth, permohonanScan, proposalController.adminUpdateBeasiswaProposal);
+router.patch('/:id/update/hibah/admin', userAuth.adminAuth, fileScan, proposalController.adminUpdateHibahProposal);
 
 module.exports = router;

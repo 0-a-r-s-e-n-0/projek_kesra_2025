@@ -2,17 +2,15 @@ CREATE DATABASE kesra_gubsu;
 
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp"; --jalankan 1x saja untuk mengaktifkan ekstensi UUID
 
-CREATE TABLE provinces (
-    provinces_id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    named VARCHAR(100) UNIQUE NOT NULL
-);
-
-CREATE TABLE regencies (
-    regencies_id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    province_id INTEGER      NOT NULL REFERENCES provinces(provinces_id) ON DELETE CASCADE,
-    named        VARCHAR(100) NOT NULL,
-    type        VARCHAR(10)  NOT NULL CHECK (type IN ('Kabupaten','Kota')),
-    UNIQUE (province_id, named)
+CREATE TABLE super_admin (
+    super_admin_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    username VARCHAR(255) UNIQUE NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password_hash TEXT NOT NULL,
+    full_name VARCHAR(255) NOT NULL,
+    phone_number VARCHAR(20) NOT NULL UNIQUE,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+	updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE admins (
@@ -23,9 +21,6 @@ CREATE TABLE admins (
     full_name VARCHAR(255) NOT NULL,
 	gender VARCHAR(20) NOT NULL CHECK (gender IN ('Pria', 'Wanita')),
 	phone_number VARCHAR(20) NOT NULL UNIQUE,
-    nip VARCHAR(25) UNIQUE NOT NULL, --nomor induk pegawai
-    positions VARCHAR(100) NOT NULL, --jabatan
-    address TEXT NOT NULL,
 	suspend BOOLEAN DEFAULT FALSE, --digunakan untuk menonaktifkan admin
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
@@ -76,6 +71,19 @@ CREATE TABLE outgoing_mail(
 	input_by_admin_id UUID REFERENCES admins(admin_id) ON DELETE SET NULL
 );
 
+CREATE TABLE provinces (
+    provinces_id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    named VARCHAR(100) UNIQUE NOT NULL
+);
+
+CREATE TABLE regencies (
+    regencies_id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    province_id INTEGER      NOT NULL REFERENCES provinces(provinces_id) ON DELETE CASCADE,
+    named        VARCHAR(100) NOT NULL,
+    type        VARCHAR(10)  NOT NULL CHECK (type IN ('Kabupaten','Kota')),
+    UNIQUE (province_id, named)
+);
+
 CREATE TABLE proposal_types (
   type_id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   named TEXT NOT NULL
@@ -92,16 +100,24 @@ CREATE TABLE academic_levels (
   description VARCHAR(50) UNIQUE NOT NULL
 );
 
+CREATE TABLE proposal_progress(
+	progress_id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+	description TEXT NOT NULL
+);
+
 CREATE TABLE proposals (
   proposal_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   type_id     INTEGER REFERENCES proposal_types(type_id),
+  nomor_TU VARCHAR(100) UNIQUE,
   regencies_id INTEGER REFERENCES regencies(regencies_id),
   address     TEXT NOT NULL,
   surat_from  TEXT NOT NULL,
   nomor_surat VARCHAR(100) UNIQUE NOT NULL,
   tanggal_surat DATE NOT NULL,
   perihal     TEXT,
-  input_by    UUID NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
+  input_by    UUID REFERENCES users(user_id) ON DELETE SET NULL,
+  input_by_admin    UUID REFERENCES admins(admin_id) ON DELETE SET NULL,
+  progress INTEGER REFERENCES proposal_progress(progress_id) ON DELETE SET NULL,
   created_at  TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at  TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -157,7 +173,15 @@ VALUES
   ('S2'),
   ('S3');
 
+INSERT INTO proposal_progress (description)
+VALUES 
+  ('25'),
+  ('32'),
+  ('73'),
+  ('100');
+
 select * from admins;
+select * from super_admin;
 select * from users;
 select * from user_profiles;
 select * from outgoing_mail;
@@ -165,66 +189,6 @@ select * from incoming_mail;
 select * from provinces;
 select * from regencies;
 
-SELECT p.name AS provinsi, r.type, r.name
-FROM regencies r
-JOIN provinces p ON r.province_id = p.id
-ORDER BY r.type DESC, r.name;
-
-//proposal hibah
-SELECT 
-  p.proposal_id,
-  p.surat_from,
-  p.nomor_surat,
-  p.tanggal_surat,
-  p.perihal,
-  p.address,
-  r.name AS regency_name,
-  hs.sub_id,
-  hsc.named AS sub_category,
-  hs.nomor_sekda,
-  hs.tgl_nomor_sekda,
-  hs.nomor_gubernur,
-  hs.tgl_nomor_gubernur,
-  hs.nama_pengurus,
-  hs.nominal_anggaran,
-  a.kind AS lampiran_jenis,
-  a.file_path AS lampiran_path,
-  u.full_name AS input_by_user,
-  p.created_at
-FROM proposals p
-JOIN hibah_details hs ON p.proposal_id = hs.proposal_id
-JOIN hibah_sub_categories hsc ON hs.sub_id = hsc.sub_id
-JOIN regencies r ON p.regencies_id = r.regencies_id
-LEFT JOIN attachments a ON a.proposal_id = p.proposal_id
-JOIN users u ON p.input_by = u.user_id
-WHERE p.type_id = 1
-ORDER BY p.created_at DESC;
-
-
-//proposal beasiswa
-SELECT 
-  p.proposal_id,
-  p.surat_from,
-  p.nomor_surat,
-  p.tanggal_surat,
-  p.perihal,
-  p.address,
-  r.name AS regency_name,
-  bd.univ_name,
-  bd.academic_level,
-  al.description AS academic_level_description,
-  bd.scan_permohonan_path,
-  u.full_name AS input_by_user,
-  p.created_at
-FROM proposals p
-JOIN beasiswa_details bd ON p.proposal_id = bd.proposal_id
-JOIN academic_levels al ON bd.academic_level = al.lev_id
-JOIN regencies r ON p.regencies_id = r.regencies_id
-JOIN users u ON p.input_by = u.user_id
-WHERE p.type_id = 2
-ORDER BY p.created_at DESC;
-
 SELECT * FROM proposals;
 SELECT * FROM hibah_details;
-
 

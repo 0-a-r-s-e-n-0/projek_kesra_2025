@@ -6,6 +6,7 @@ const rateLimit = require('express-rate-limit');
 const userRoutes = require('./Routes/userRoutes');
 const mailRoutes = require('./Routes/mailRoutes');
 const adminRoutes = require('./Routes/adminRoutes');
+const superAdminRoutes = require('./Routes/superAdminRoutes');
 const addressRoutes = require('./Routes/addressRoutes');
 const proposalRoutes = require('./Routes/proposalRoutes');
 const { swaggerUi, swaggerSpec } = require('./docs/swagger');
@@ -17,6 +18,7 @@ app.use(morgan('dev')); // format 'dev' bagus saat development
 app.use(cors({
     origin: [
         'http://localhost:8080',
+        'http://localhost:5173',
         //'https://domainmu.com'
     ],
     credentials: true
@@ -24,6 +26,8 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
+
+app.use('/uploads', express.static('uploads'));
 
 // Limit 100 requests per 15 menit per IP
 const limiter = rateLimit({
@@ -48,6 +52,7 @@ app.use('/api/mails', mailRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/address', addressRoutes);
 app.use('/api/proposal', proposalRoutes);
+app.use('/api/super-admin', superAdminRoutes);
 
 // 404 handler
 app.use((req, res) => {

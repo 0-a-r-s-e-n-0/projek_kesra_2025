@@ -3,6 +3,7 @@ const userController = require('../Controllers/userController')
 
 const userAuth = require('../Middlewares/userAuth')
 const { validateRegister, validateLogin, validateUpdateUserData } = require('../Middlewares/validations/validate');
+const { authenticateToken } = require('../middlewares/authToken');
 const router = express.Router()
 
 const withFileCleanup = require('../helpers/withFileCleanUPHelper');
@@ -44,12 +45,17 @@ router.post(
     withFileCleanup(validateRegister),
     userController.signup
 );
+router.post(
+    '/logout',
+    authenticateToken,
+    userController.logout
+);
+
 router.post('/login', validateLogin, userController.login)
-router.get('/profile', userAuth.userAuth, userAuth.checkSuspendedUser, userController.getProfile);
+router.get('/profile', userAuth.userAuth, userController.getProfile);
 router.patch(
     '/profile',
     userAuth.userAuth,
-    userAuth.checkSuspendedUser,
     uploadUserFiles,
     withFileCleanup(validateUpdateUserData),
     userController.updateUserData
