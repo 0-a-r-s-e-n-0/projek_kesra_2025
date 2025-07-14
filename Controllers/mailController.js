@@ -52,7 +52,23 @@ const generateMailController = (Model) => ({
 
     async create(req, res) {
         try {
-            const newMail = await Model.create(req.body);
+            // ambil nama file dari req.files.mail_file[0]
+            const uploadedFile = req.files?.mail_file?.[0];
+
+            if (!uploadedFile) {
+                return res.status(400).json({
+                    status: 'error',
+                    message: 'File surat (mail_file) wajib diunggah'
+                });
+            }
+
+            const body = {
+                ...req.body,
+                mail_file: uploadedFile.path, // atau uploadedFile.filename kalau kamu hanya simpan nama
+            };
+
+            const newMail = await Model.create(body);
+
             return res.status(201).json({ status: 'success', data: newMail });
         } catch (err) {
             return res.status(500).json({ status: 'error', message: err.message });

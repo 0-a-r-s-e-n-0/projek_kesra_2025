@@ -58,7 +58,8 @@ CREATE TABLE user_profiles (
 CREATE TABLE incoming_mail(
 	mail_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
 	mail_no TEXT NOT NULL,
-	mail_file TEXT NOT NULL,
+	file_surat_masuk TEXT NOT NULL,
+  	mail_date DATE,
 	input_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
 	input_by_admin_id UUID REFERENCES admins(admin_id) ON DELETE SET NULL
 );
@@ -66,7 +67,8 @@ CREATE TABLE incoming_mail(
 CREATE TABLE outgoing_mail(
 	mail_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
 	mail_no TEXT NOT NULL,
-	mail_file TEXT NOT NULL,
+	file_surat_keluar TEXT NOT NULL,
+  	mail_date DATE,
 	input_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
 	input_by_admin_id UUID REFERENCES admins(admin_id) ON DELETE SET NULL
 );

@@ -45,9 +45,12 @@ const createHibahProposal = async (req, res) => {
             return sendError(res, 400, 'Nomor surat sudah digunakan', 'NOMOR_SURAT_EXISTS');
         }
 
-        const existingTU = await db.Proposal.findOne({ where: { nomor_TU } });
-        if (existingTU) {
-            return sendError(res, 400, 'Nomor TU sudah digunakan', 'NOMOR_TU_EXISTS');
+        let existingTU = null;
+        if (nomor_TU) {
+            existingTU = await db.Proposal.findOne({ where: { nomor_TU } });
+            if (existingTU) {
+                return sendError(res, 400, 'Nomor TU sudah digunakan', 'NOMOR_TU_EXISTS');
+            }
         }
 
         let existingNS = null;
@@ -65,9 +68,6 @@ const createHibahProposal = async (req, res) => {
                 return sendError(res, 400, 'Nomor gubenur sudah digunakan', 'NOMOR_GUBENUR_EXISTS');
             }
         }
-
-
-
 
         /* 1️⃣ proposal induk */
         const proposal = await Proposal.create({
@@ -156,9 +156,12 @@ const createBeasiswaProposal = async (req, res) => {
         if (!file)
             return sendError(res, 400, 'scan_permohonan file is required', 'FILE_REQUIRED');
 
-        const existingTU = await db.Proposal.findOne({ where: { nomor_TU } });
-        if (existingTU) {
-            return sendError(res, 400, 'Nomor TU sudah digunakan', 'NOMOR_TU_EXISTS');
+        let existingTU = null;
+        if (nomor_TU) {
+            existingTU = await db.Proposal.findOne({ where: { nomor_TU } });
+            if (existingTU) {
+                return sendError(res, 400, 'Nomor TU sudah digunakan', 'NOMOR_TU_EXISTS');
+            }
         }
 
         // 🔍 Cek apakah nomor_surat sudah ada
@@ -438,6 +441,7 @@ const adminUpdateHibahProposal = async (req, res) => {
     }
 };
 
+
 const adminUpdateBeasiswaProposal = async (req, res) => {
     const { id } = req.params;
     const {
@@ -492,6 +496,8 @@ const adminUpdateBeasiswaProposal = async (req, res) => {
         return sendError(res, 500, 'Failed to update beasiswa proposal', 'SERVER_ERROR');
     }
 };
+
+
 
 module.exports = {
     createHibahProposal,

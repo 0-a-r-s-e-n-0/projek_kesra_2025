@@ -39,6 +39,7 @@ router.delete('/:id/delete', userAuth.userAuth, proposalController.deleteMyPropo
 
 //kurang 1 get detail
 router.get('/list/admin', userAuth.adminAuth, proposalController.getAllProposal);
+router.get('/:id/detail/admin', userAuth.adminAuth, proposalController.adminGetProposalDetail);
 router.delete('/:id/delete/admin', userAuth.adminAuth, proposalController.adminDeleteProposal);
 router.patch('/:id/update/beasiswa/admin', userAuth.adminAuth, permohonanScan, proposalController.adminUpdateBeasiswaProposal);
 router.patch('/:id/update/hibah/admin', userAuth.adminAuth, fileScan, proposalController.adminUpdateHibahProposal);

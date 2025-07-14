@@ -8,7 +8,7 @@ async function generateAndSendMails(type = 'incoming') {
     for (let i = 1; i <= TOTAL; i++) {
         const mail_no = faker.string.alphanumeric(10).toUpperCase();
         const mail_file = faker.internet.url(); // atau path lokal jika disimpan
-        const input_by_admin_id = 'd46dbf09-e122-4e39-a4fb-63fa446a870e'; // bisa diganti dengan UUID admin jika sudah ada
+        const input_by_admin_id = '19632618-cc17-416e-ad40-e1d833c97b53'; // bisa diganti dengan UUID admin jika sudah ada
 
         try {
             const res = await axios.post(`${BASE_URL}/${type}`, {

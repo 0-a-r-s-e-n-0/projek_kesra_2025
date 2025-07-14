@@ -9,6 +9,7 @@ const adminRoutes = require('./Routes/adminRoutes');
 const superAdminRoutes = require('./Routes/superAdminRoutes');
 const addressRoutes = require('./Routes/addressRoutes');
 const proposalRoutes = require('./Routes/proposalRoutes');
+const dashboardRoutes = require('./Routes/dashboardRoutes');
 const { swaggerUi, swaggerSpec } = require('./docs/swagger');
 
 const app = express();
@@ -53,6 +54,8 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/address', addressRoutes);
 app.use('/api/proposal', proposalRoutes);
 app.use('/api/super-admin', superAdminRoutes);
+app.use('/api/admin', dashboardRoutes);
+
 
 // 404 handler
 app.use((req, res) => {

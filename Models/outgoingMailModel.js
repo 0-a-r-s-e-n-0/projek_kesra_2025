@@ -12,13 +12,19 @@ module.exports = (sequelize) => {
             mail_no: { type: DataTypes.TEXT, allowNull: false },
             mail_file: { type: DataTypes.TEXT, allowNull: false },
             input_by_admin_id: DataTypes.UUID,
+            mail_date: {
+                type: DataTypes.DATE,
+            },
+            input_at: {
+                type: DataTypes.DATE,
+                defaultValue: DataTypes.NOW
+            },
         },
         {
             tableName: 'outgoing_mail',
             underscored: true,
             freezeTableName: true,
-            timestamps: true,
-            createdAt: 'input_at',
+            timestamps: false,
         }
     );
 
